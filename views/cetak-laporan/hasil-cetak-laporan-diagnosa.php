@@ -17,7 +17,7 @@ use app\models\PendaftaranPasien;
         <th>Nama Pasien</th>
         <th>Nama DPJP</th>
         <th>Ruangan</th>
-        <th>Diagnosa Utama</th>
+        <th>Diagnosa</th>
         <th>Keluhan</th>
         <th>Riwayat Penyakit</th>
         <th>Pemeriksaan Fisik</th>
