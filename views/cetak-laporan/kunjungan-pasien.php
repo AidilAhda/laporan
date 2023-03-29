@@ -53,7 +53,7 @@ use yii\helpers\ArrayHelper;
                 <label>Ruangan</label>
                 <?=  Select2::widget([
                             'name' => 'ruangan',
-                            'data' => ArrayHelper::map(\app\models\SdmMUnit::find()->where(' unt_id = 86 or unt_id = 90 or unt_id =93 or unt_id = 97 or unt_id = 85 or unt_id = 68 or unt_id =104')->all(), 'unt_id', 'unt_nama'),
+                            'data' => ArrayHelper::map(\app\models\SdmMUnit::find()->where(' unt_id = 86 or unt_id = 90 or unt_id =93 or unt_id = 97 or unt_id = 85 or unt_id = 67 or unt_id =104')->all(), 'unt_id', 'unt_nama'),
                             'options' => ['placeholder' => 'Select a state ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,
