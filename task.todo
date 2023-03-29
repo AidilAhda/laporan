@@ -1,0 +1,43 @@
+task:
+    ✔ ganti no urut jika beda poli @done (1/10/2021, 9:34:07 PM)
+    ☐ tanya kak wulan apakah di vclaim bpjs bisa meng update no. rm pasien
+    ☐ keterangan pengajuan di not required
+    ☐ jika rawatinap, disable display dpjp after search rujukan
+    ☐ jika setelah ri, dan masuk IGD gunakan sep rawatinap sebagai no. rujukan otomatis.
+    ☐ masa berlaku post kontrol rawatinap berlaku 1 bulan semenjak no sep checkout.
+    ☐ input kelas rawat inap di tampilkan, hide poliklik. 
+    ☐ tampilkan kelas rawatinap dibawah hak kelas, contoh, hak kelas = 1, yang tampil 2,3
+    ☐ ketika pasien terdaftar ke rj, di page igd, bisa di peroleh\
+    ☐ test edit penanggungan, karena relasi di Layananhasone di hapus orderBy dan limit 1 
+
+
+
+
+    <!-- template for dpjp -->
+    <table class="dpjp_template" style="display:none;">
+        <tbody>
+            <tr class="tr-dpjp">
+                <td width="70%">
+                    <select name="dokter[]" class="form-control input-sm list-dpjp" style="width:100%;">
+                        <?php
+                        if(count($dokter)>0){
+                            ?><option value="">- Pilih DPJP -</option><?php
+                            foreach($dokter as $d){
+                                ?><option value="<?php echo $d['id']; ?>"><?php echo $d['text']; ?></option><?php
+                            }
+                        }else{
+                            ?><option value="">- DPJP tidak tersedia -</option><?php
+                        }
+                        ?>
+                    </select>
+                </td>
+                <td>
+                    <select name="status[]" class="form-control input-sm status">
+                        <option value="1">Dokter Utama</option>
+                        <option value="2">Dokter Pendukung</option>
+                    </select>
+                </td>
+                <td><button type="button" class="btn btn-sm btn-danger btn-flat btn-delete" title="hapus DPJP"><i class="fa fa-close"></i></button></td>
+            </tr>
+        </tbody>
+    </table>

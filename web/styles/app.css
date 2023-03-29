@@ -1,0 +1,12 @@
+.modal-dialog{
+    margin-top:10px;
+}
+.modal-header{
+    padding:5px 5px 5px 10px;
+}
+.h2{
+    border:1px solid red;
+}
+input[type=text].form-control{
+    font-size: 15px;
+}
