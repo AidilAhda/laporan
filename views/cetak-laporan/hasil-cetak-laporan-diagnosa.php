@@ -44,7 +44,8 @@ use app\models\PendaftaranPasien;
         <td><?= $pasien?$pasien->ps_nama:' - '; ?></td>
         <td><?= $dpjp ? $dpjp->pgw_nama: ' - '  ?></td>
         <td><?= $unit ? $unit->unt_nama: ' - '  ?></td>
-        <td><?= $val['rmrj_diagnosis_utama_deskripsi']?></td>
+        <td><?= $val['rmrj_diagnosis_utama_deskripsi'].'(Diagnosa Utama)'?>
+        </td>
         <td><?= $val['rmrj_keluhan']?></td>
         <td><?= $val['rmrj_riwayat_penyakit'] ?$val['rmrj_riwayat_penyakit']: ' - ' ?></td>
         <td><?= $val['rmrj_pemeriksaan_fisik']?$val['rmrj_pemeriksaan_fisik']:'- '?></td>

@@ -21,7 +21,7 @@
         <td><?= $val['registrasi']? $val['registrasi']['reg_no_sep'] : ''?></td>
         <td><?= $val['registrasi']? $val['registrasi']['reg_pasien_kode'] : ''?></td>
 
-        <td><?= $val['registrasi']['pasien'] ? $val['registrasi']['pasien']['ps_nama'] : '' ?>
+        <td><?= $val['registrasi']['pasien'] ? $val['registrasi']['pasien']['ps_nama'].'<BR> ('.$val['registrasi']['pasien']['ps_no_identitas'].')' : '' ?>
         </td>
         <td><?= $val['pl_unit_kode'] ? $val['unit']['unt_nama'] : '' ?></td>
         <td><?= $dpjp ? ($dpjp->pegawai ? $dpjp->pegawai->pgw_nama : ''): ''  ?></td>
