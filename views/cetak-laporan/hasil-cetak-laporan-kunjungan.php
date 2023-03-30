@@ -14,7 +14,14 @@
         <th>Tgl Keluar</th>
     </tr>
     <?php  $no = 1; foreach ($model as $val){
-            $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();
+        $nama_dpjp = '';
+            if($val['pl_jenis_layanan'] == 3){
+               $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();
+               
+            }else{
+                $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $val['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
+            }
+            
         ?>
     <tr>
         <td><?= $no++ ?></td>
@@ -30,4 +37,9 @@
         </td>
     </tr>
     <?php } ?>
+    <tr>
+        <td></td>
+        <td> <strong>Total Kunjungan <?=$ruangan['unt_nama']?></strong></td>
+        <td> <strong><?=$total?></strong></td>
+    </tr>
 </table>

@@ -69,19 +69,27 @@ class CetakLaporanController extends Controller
             $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                 $q->joinWith(['pasien']);
             }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+
+            $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                $q->joinWith(['pasien']);
+            }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
             
         }else{
             $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                 $q->joinWith(['pasien']);
             }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                $q->joinWith(['pasien']);
+            }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
         
         }
+        
         // echo"<pre>";
         // print_r($model);die();
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan' => $ruangan ]);
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan' => $ruangan ,'total'=>$total]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,
@@ -97,6 +105,7 @@ class CetakLaporanController extends Controller
         $tgl_m = Yii::$app->request->post('tanggal_mulai');
         $tgl_s = Yii::$app->request->post('tanggal_selesai');
         $state = Yii::$app->request->post('state');
+        $unit = Yii::$app->request->post('ruangan');
         
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
@@ -107,16 +116,19 @@ class CetakLaporanController extends Controller
 
         }
         // var_dump($state);
-        $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where([
-            'rmrj_diagnosis_utama_kode' =>$diagnosa
-        ])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
+            ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
+        )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->asArray()->all();
+        $total =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
+            ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
+        )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->count();
         // echo"<pre>";
         // print_r($model);die();
 
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-diagnosa',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'diagnosa'=>$diagnosa]);
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-diagnosa',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'diagnosa'=>$diagnosa,'total'=>$total]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,

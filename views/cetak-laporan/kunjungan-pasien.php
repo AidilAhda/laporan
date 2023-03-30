@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
+use \app\models\SdmMUnit;
 /* @var $this yii\web\View */
 /* @var $model app\models\SdmMAgama */
 /* @var $form yii\widgets\ActiveForm */
@@ -13,7 +14,7 @@ use yii\helpers\ArrayHelper;
 <div class="card-body">
     <div class="alert alert-default  alert-dismissible">
         <div class="jenis-laporan-form box box-success">
-            <h5 class="text-center">LAPORAN KUNJUNGAN PASIEN</h5>
+            <h3 class="text-center">LAPORAN KUNJUNGAN PASIEN</h3>
             <?php $form = ActiveForm::begin([
                 'action' => ['cetak-laporan/cetak-laporan-kunjungan'],
                 'method' => 'post',
@@ -53,7 +54,7 @@ use yii\helpers\ArrayHelper;
                 <label>Ruangan</label>
                 <?=  Select2::widget([
                             'name' => 'ruangan',
-                            'data' => ArrayHelper::map(\app\models\SdmMUnit::find()->where(' unt_id = 86 or unt_id = 90 or unt_id =93 or unt_id = 97 or unt_id = 85 or unt_id = 67 or unt_id =104 or unt_id =83')->all(), 'unt_id', 'unt_nama'),
+                            'data' => ArrayHelper::map(SdmMUnit::find()->where(' unt_id = 86 or unt_id = 90 or unt_id =93 or unt_id = 97 or unt_id = 85 or unt_id = 67 or unt_id =104 or unt_id =83')->all(), 'unt_id', 'unt_nama'),
                             'options' => ['placeholder' => 'Select a state ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,

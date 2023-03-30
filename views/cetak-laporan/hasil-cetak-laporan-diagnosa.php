@@ -13,7 +13,8 @@ use app\models\PendaftaranPasien;
 <table width="100%" border="1" cellspacing="0" style="text-align: center;vertical-align: middle;">
     <tr>
         <th>No</th>
-        <th>NO RM</th>
+        <th>NO Registrasi</th>
+        <th>Kode Diagnosa</th>
         <th>Nama Pasien</th>
         <th>Nama DPJP</th>
         <th>Ruangan</th>
@@ -26,14 +27,13 @@ use app\models\PendaftaranPasien;
 
         <th>Tgl Keluar</th>
     </tr>
+
     <?php  $no = 1; foreach ($model as $val){
-        $layanan = PendaftaranLayanan::find()->where(['pl_id' => $val['rmrj_pl_id']])->one();
-        $registrasi = PendaftaranRegistrasi::find()->where(['reg_kode' => $layanan->pl_reg_kode])->one();
+        $registrasi = PendaftaranRegistrasi::find()->where(['reg_kode' => $val['layanan']['pl_reg_kode']])->one();
         $dpjp = SdmMPegawai::find()->where(['pgw_id' => $val['rmrj_dokter_id']])->one();
         $pasien = PendaftaranPasien::find()->where(['ps_kode' =>$registrasi->reg_pasien_kode ])->one();
-        $unit = SdmMUnit::find()->where(['unt_id' =>$val['rmrj_pl_id'] ])->one();
-        echo"<pre>";
-        //  var_dump($unit); exit();
+        $unit = SdmMUnit::find()->where(['unt_id' =>$val['layanan']['pl_unit_kode'] ])->one();
+       
         // Tuberculous Peripheral Lymphadenopathy
         //Benign Lipomatous Neoplasm Of Skin And Subcutaneous Tissue Of Limb
         
@@ -41,10 +41,12 @@ use app\models\PendaftaranPasien;
     <tr>
         <td><?= $no++ ?></td>
         <td><?= $registrasi->reg_pasien_kode; ?></td>
+        <td><?= $val['rmrj_diagnosis_utama_kode']?>
+        </td>
         <td><?= $pasien?$pasien->ps_nama:' - '; ?></td>
         <td><?= $dpjp ? $dpjp->pgw_nama: ' - '  ?></td>
         <td><?= $unit ? $unit->unt_nama: ' - '  ?></td>
-        <td><?= ($val['rmrj_diagnosis_utama_deskripsi']?$val['rmrj_diagnosis_utama_deskripsi'].'(Diagnosa Utama)': '').'<BR>'.($val['rmrj_diagnosis_tambahan1_deskripsi']?$val['rmrj_diagnosis_tambahan1_deskripsi'].' (Diagnosa Tambahan 1)': '').'<BR>'.($val['rmrj_diagnosis_tambahan2_deskripsi']?$val['rmrj_diagnosis_tambahan2_deskripsi'].'(Diagnosa Tambahan 2)': '').'<BR>'.($val['rmrj_diagnosis_tambahan3_deskripsi']?$val['rmrj_diagnosis_tambahan3_deskripsi'].' (Diagnosa Tambahan 3)': '').'<BR>'.($val['rmrj_diagnosis_tambahan4_deskripsi']?$val['rmrj_diagnosis_tambahan4_deskripsi'].' (Diagnosa Tambahan 4)': '').'<BR>'.($val['rmrj_diagnosis_tambahan5_deskripsi']?$val['rmrj_diagnosis_tambahan5_deskripsi'].' (Diagnosa Tambahan 5)': '').'<BR>'.($val['rmrj_diagnosis_tambahan6_deskripsi']?$val['rmrj_diagnosis_tambahan6_deskripsi'].' (Diagnosa Tambahan 6)': '').'<BR>'.($val['rmrj_diagnosis_tambahan7_deskripsi']?$val['rmrj_diagnosis_tambahan7_deskripsi'].' (Diagnosa Tambahan 7)': '').'<BR>'.($val['rmrj_diagnosis_tambahan8_deskripsi']?$val['rmrj_diagnosis_tambahan8_deskripsi'].' (Diagnosa Tambahan 8)': '').'<BR>'.($val['rmrj_diagnosis_tambahan9_deskripsi']?$val['rmrj_diagnosis_tambahan9_deskripsi'].' (Diagnosa Tambahan 9)': '')?>
+        <td><?=($val['rmrj_diagnosis_utama_deskripsi']?$val['rmrj_diagnosis_utama_deskripsi'].'(Diagnosa Utama)': '').'<BR>'.($val['rmrj_diagnosis_tambahan1_deskripsi']?$val['rmrj_diagnosis_tambahan1_deskripsi'].' (Diagnosa Tambahan 1)': '').'<BR>'.($val['rmrj_diagnosis_tambahan2_deskripsi']?$val['rmrj_diagnosis_tambahan2_deskripsi'].'(Diagnosa Tambahan 2)': '').'<BR>'.($val['rmrj_diagnosis_tambahan3_deskripsi']?$val['rmrj_diagnosis_tambahan3_deskripsi'].' (Diagnosa Tambahan 3)': '').'<BR>'.($val['rmrj_diagnosis_tambahan4_deskripsi']?$val['rmrj_diagnosis_tambahan4_deskripsi'].' (Diagnosa Tambahan 4)': '').'<BR>'.($val['rmrj_diagnosis_tambahan5_deskripsi']?$val['rmrj_diagnosis_tambahan5_deskripsi'].' (Diagnosa Tambahan 5)': '').'<BR>'.($val['rmrj_diagnosis_tambahan6_deskripsi']?$val['rmrj_diagnosis_tambahan6_deskripsi'].' (Diagnosa Tambahan 6)': '').'<BR>'.($val['rmrj_diagnosis_tambahan7_deskripsi']?$val['rmrj_diagnosis_tambahan7_deskripsi'].' (Diagnosa Tambahan 7)': '').'<BR>'.($val['rmrj_diagnosis_tambahan8_deskripsi']?$val['rmrj_diagnosis_tambahan8_deskripsi'].' (Diagnosa Tambahan 8)': '').'<BR>'.($val['rmrj_diagnosis_tambahan9_deskripsi']?$val['rmrj_diagnosis_tambahan9_deskripsi'].' (Diagnosa Tambahan 9)': '')?>
         </td>
         <td><?= $val['rmrj_keluhan']?></td>
         <td><?= $val['rmrj_riwayat_penyakit'] ?$val['rmrj_riwayat_penyakit']: ' - ' ?></td>
@@ -58,4 +60,9 @@ use app\models\PendaftaranPasien;
         </td>
     </tr>
     <?php } ?>
+    <tr>
+        <td></td>
+        <td><strong>Total diagnosa</strong></td>
+        <td><strong><?=$total?></strong></td>
+    </tr>
 </table>

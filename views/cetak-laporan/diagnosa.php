@@ -5,6 +5,8 @@ use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
+use \app\models\MedisMIcd10cm;
+use \app\models\SdmMUnit;
 /* @var $this yii\web\View */
 /* @var $model app\models\SdmMAgama */
 /* @var $form yii\widgets\ActiveForm */
@@ -12,7 +14,7 @@ use yii\helpers\ArrayHelper;
 <div class="card-body">
     <div class="alert alert-default  alert-dismissible">
         <div class="jenis-laporan-form box box-primary">
-            <h5 class="text-center ">LAPORAN DIAGNOSA</h5>
+            <h3 class="text-center ">LAPORAN DIAGNOSA</h3>
             <?php $form = ActiveForm::begin([
                 'action' => ['cetak-laporan/cetak-laporan-diagnosa'],
                 'method' => 'post',
@@ -48,11 +50,22 @@ use yii\helpers\ArrayHelper;
                         ]);
                         ?>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-3">
+                <label>Ruangan</label>
+                <?=  Select2::widget([
+                            'name' => 'ruangan',
+                            'data' => ArrayHelper::map(SdmMUnit::find()->where('unt_is_rj=1 or unt_is_ri=1')->all(), 'unt_id', 'unt_nama'),
+                            'options' => ['placeholder' => 'Select a state ...'],
+                            'pluginOptions' => [
+                                'allowClear' => true,
+                            ],
+                        ]);?>
+            </div>
+            <div class="col-md-3">
                 <label>Diagnosa</label>
                 <?=  Select2::widget([
                             'name' => 'state',
-                            'data' => ArrayHelper::map(\app\models\MedisMIcd10cm::find()->limit(2000)->all(), 'icd10_kode', 'icd10_deskripsi'),
+                            'data' => ArrayHelper::map(MedisMIcd10cm::find()->limit(2000)->all(), 'icd10_kode', 'icd10_deskripsi'),
                             'options' => ['placeholder' => 'Pilih diagnosa ...','multiple'=>true],
                             'pluginOptions' => [
                                 'allowClear' => true,
