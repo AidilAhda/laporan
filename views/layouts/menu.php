@@ -77,8 +77,7 @@ use app\models\SdmMPegawai;
                     </li>
                 </ul>
             </li>
-            <li <?=Yii::$app->controller->id=="coding" ? 'class="active"' : ""?>><a
-                    href="<?php echo Url::to(['/site']) ?>"><i class="fa fa-dashboard"></i> <span>Coding</span></a></li>
+
 
             <li <?=Yii::$app->controller->id=="indexing" ? 'class="active"' : ""?>><a
                     href="<?php echo Url::to(['/site']) ?>"><i class="fa fa-dashboard"></i> <span>indexing</span></a>
