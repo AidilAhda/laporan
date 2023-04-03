@@ -17,7 +17,7 @@ AppAsset::register($this);
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= !empty($this->title) ? Html::encode($this->title).' - ' : '' ?>Pelaporan
         <?php echo Yii::$app->params['app']['full_owner_name']; ?></title>
-    <link rel="shortcut icon" href="<?php echo Url::base(); ?>/images/favicon.ico" />
+    <link rel="shortcut icon" href="<?php echo Url::base(); ?>/images/logo_sirindit.jpg" />
     <?php $this->head() ?>
 </head>
 <?php $this->beginBody() ?>

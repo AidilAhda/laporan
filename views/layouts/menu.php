@@ -19,13 +19,9 @@ use app\models\SdmMPegawai;
         </div>
         <ul class="sidebar-menu" data-widget="tree">
             <li class="header">MAIN NAVIGATION</li>
-
-
             <li <?=Yii::$app->controller->id=="site" ? 'class="active"' : ""?>><a
                     href="<?php echo Url::to(['/site']) ?>"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a>
             </li>
-
-
             <li <?=Yii::$app->controller->id=="monitoring" ? 'class="active"' : ""?>><a
                     href="<?php echo Url::to(['/monitoring']) ?>"><i class="fa fa-dashboard"></i>
                     <span>Monitoring</span></a></li>
