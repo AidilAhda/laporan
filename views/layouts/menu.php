@@ -51,7 +51,7 @@ use app\models\SdmMPegawai;
 
                     <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti/approval" ? 'class="active"' : ""?>>
                         <a href="<?php echo Url::to(['/cetak-laporan/laporan-farmasi']) ?>" class="nav-link">
-                            <i class="fa fa-circle-o"></i>Farmasi/Depo
+                            <i class="fa fa-circle-o"></i>Farmasi
                         </a>
                     </li>
 

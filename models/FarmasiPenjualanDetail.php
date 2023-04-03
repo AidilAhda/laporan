@@ -97,6 +97,11 @@ class FarmasiPenjualanDetail extends \yii\db\ActiveRecord
         return $this->hasOne(FarmasiPenjualan::className(),['pnj_id'=>'pjd_pnj_id']);
     }
 
+    function getSubdetail()
+    {
+        return $this->hasOne(FarmasiPenjualanDetailSub::className(),['pens_pend_id'=>'pjd_id']);
+    }
+
     function getBarang()
     {
         return $this->hasOne(FarmasiMBarang::className(),['bar_id'=>'pjd_bar_id']);

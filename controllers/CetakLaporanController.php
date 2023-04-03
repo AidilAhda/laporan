@@ -219,7 +219,11 @@ class CetakLaporanController extends Controller
 
         //print_r($unit);
         if ($unit != null) {
-            $model = FarmasiPenjualan::find()->where(['pnj_depo_id' =>$unit])->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            $model = FarmasiPenjualan::find()->select(['unt_nama', 'bar_nama', 'pnj_tanggal_resep',  'pens_jumlah', 'pens_satuan', 'pens_harga_jual', 'pens_biaya_layanan','pens_subtotal','pnj_depo_id','pnj_id', 'pnj_unit_id', 'SUM(pens_jumlah) as jumlah', 'SUM(pens_subtotal) as total', 'SUM(pens_biaya_layanan) as biaya_layanan'])->joinWith(['poli','depo','detail' => function($q){
+                $q->joinWith(['subdetail' => function($q){
+                    $q->joinWith(['barang']);
+                }]);
+            }])->where(['pnj_depo_id' =>$unit])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->groupBy(['bar_id', 'DATE(pnj_tanggal_resep)'])->asArray()->all();
         }else{
             $model = FarmasiPenjualan::find()->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
         }

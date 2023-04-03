@@ -23,26 +23,22 @@ use app\models\FarmasiPenjualanDetailSub;
 
     </tr>
     <?php $total_sub = 0;  
-            $no = 1; foreach ($model as $val){
-            $subDetail = FarmasiPenjualanDetailSub::find()->where(['pens_pend_id'=>$val['detail']['pjd_id']])->all();
-            foreach ($subDetail as $sd){
-            $barang = FarmasiMBarang::find()->where(['bar_id'=>$sd['pens_bar_id']])->one();
-            // echo "<pre>";
-            // print_r($subDetail);die();
-                $total_sub += $sd['pens_subtotal'];
-            }
+            $no = 1; foreach ($model as $sd){
+           
+                $total_sub += $sd['total'];
+            
         ?>
     <tr>
         <td><?= $no++ ?></td>
-        <td><?= $val['depo']? $val['depo']['unt_nama'] : ''?></td>
-        <td><?= $barang?$barang['bar_nama'] : '' ?></td>
-        <td><?= $val?$val['pnj_tanggal_resep'] : '' ?></td>
-        <td><?= $val['poli']? $val['poli']['unt_nama'] : ''?></td>
-        <td><?= $sd?$sd['pens_jumlah'] : ''?></td>
+        <td><?= $sd['depo']? $sd['depo']['unt_nama'] : ''?></td>
+        <td><?= $sd['detail']['subdetail'] ? $sd['detail']['subdetail']['barang']['bar_nama']: ''; ?></td>
+        <td><?= $sd?$sd['pnj_tanggal_resep'] : '' ?></td>
+        <td><?= $sd['poli']? $sd['poli']['unt_nama'] : ''?></td>
+        <td><?= $sd?$sd['jumlah'] : ''?></td>
         <td><?= $sd?$sd['pens_satuan'] : ''?></td>
         <td><?=  $sd?"Rp " .number_format($sd['pens_harga_jual'],2,',','.') : '' ?>
-        <td><?=  $sd?"Rp " .number_format($sd['pens_biaya_layanan'],2,',','.') : '' ?>
-        <td><?=  $sd?"Rp " .number_format($sd['pens_subtotal'],2,',','.') : '' ?>
+        <td><?=  $sd?"Rp " .number_format($sd['biaya_layanan'],2,',','.') : '' ?>
+        <td><?=  $sd?"Rp " .number_format($sd['total'],2,',','.') : '' ?>
         </td>
         </td>
     </tr>

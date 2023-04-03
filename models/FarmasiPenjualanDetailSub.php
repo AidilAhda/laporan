@@ -91,4 +91,8 @@ class FarmasiPenjualanDetailSub extends \yii\db\ActiveRecord
     {
         return new FarmasiPenjualanDetailSubQuery(get_called_class());
     }
+    function getBarang()
+    {
+        return $this->hasOne(FarmasiMBarang::className(),['bar_id'=>'pens_bar_id']);
+    }
 }
