@@ -14,7 +14,7 @@ use app\models\SdmMPegawai;
                 <img src="<?php echo Url::base(); ?>/images/logo_sirindit.jpg" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
-                <p>asdasd</p>
+                <p>PELAPORAN RSUD</p>
             </div>
         </div>
         <ul class="sidebar-menu" data-widget="tree">
