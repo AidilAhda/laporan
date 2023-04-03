@@ -6,6 +6,7 @@ use yii\widgets\ActiveForm;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
 use \app\models\SdmMUnit;
+use \app\models\PendaftaranLayanan;
 /* @var $this yii\web\View */
 /* @var $model app\models\SdmMAgama */
 /* @var $form yii\widgets\ActiveForm */
@@ -14,7 +15,9 @@ use \app\models\SdmMUnit;
 <div class="card-body">
     <div class="alert alert-default  alert-dismissible">
         <div class="jenis-laporan-form box box-success">
-            <h3 class="text-center">LAPORAN KUNJUNGAN PASIEN</h3>
+            <h3 class="text-center">LAPORAN KUNJUNGAN PASIEN
+
+            </h3>
             <?php $form = ActiveForm::begin([
                 'action' => ['cetak-laporan/cetak-laporan-kunjungan'],
                 'method' => 'post',
@@ -52,11 +55,11 @@ use \app\models\SdmMUnit;
                         ?>
                 </div>
                 <div class="col-md-4">
-                    <label>Ruangan</label>
+                    <label>Installasi</label>
                     <?=  Select2::widget([
-                            'name' => 'ruangan',
-                            'data' => ArrayHelper::map(SdmMUnit::find()->where(' unt_id = 85 or unt_id = 67 or unt_id =104 or unt_id =83')->all(), 'unt_id', 'unt_nama'),
-                            'options' => ['placeholder' => 'Select a state ...'],
+                            'name' => 'layanan',
+                            'data' => ['1' => 'INSTALASI GAWAT DARURAT','2'=>'INSTALASI RAWAT JALAN','3'=>'INSTALASI RAWAT INAP'],
+                            'options' => ['placeholder' => 'Pilih Installasi ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,
                             ],

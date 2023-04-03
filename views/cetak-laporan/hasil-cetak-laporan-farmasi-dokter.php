@@ -16,7 +16,7 @@ use app\models\FarmasiPenjualanDetailSub;
         <th>DOKTER</th>
         <th>NAMA OBAT</th>
         <th>TANGGAL RESEP</th>
-        <th>RUANGAN</th>
+        <th>UNIT PELAYANAN</th>
         <th>JUMLAH</th>
         <th>SATUAN</th>
         <th>HARGA JUAL</th>
