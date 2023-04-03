@@ -123,11 +123,11 @@ class CetakLaporanController extends Controller
             if ($jenisLayanan != null) {
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
     
                 $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
                 
             }else{
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
