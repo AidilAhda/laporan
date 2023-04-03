@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 
+
 /**
  * This is the model class for table "farmasi_penjualan".
  *
@@ -137,8 +138,24 @@ class FarmasiPenjualan extends \yii\db\ActiveRecord
     {
         return new FarmasiPenjualanQuery(get_called_class());
     }
+
     function getDepo()
     {
         return $this->hasOne(SdmMUnit::className(),['unt_id'=>'pnj_depo_id']);
+    }
+
+    function getPoli()
+    {
+        return $this->hasOne(SdmMUnit::className(),['unt_id'=>'pnj_unit_id']);
+    }
+
+    function getDetail()
+    {
+        return $this->hasOne(FarmasiPenjualanDetail::className(),['pjd_pnj_id'=>'pnj_id']);
+    }
+
+    function getDokter()
+    {
+        return $this->hasone(SdmMPegawai::className(),['pgw_id'=>'pnj_dokter_id']);
     }
 }

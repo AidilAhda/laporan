@@ -48,6 +48,13 @@ use app\models\SdmMPegawai;
                             <i class="fa fa-circle-o"></i>Kunjungan Pasien
                         </a>
                     </li>
+
+                    <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti/approval" ? 'class="active"' : ""?>>
+                        <a href="<?php echo Url::to(['/cetak-laporan/laporan-farmasi']) ?>" class="nav-link">
+                            <i class="fa fa-circle-o"></i>Farmasi/Depo
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             <li class="treeview <?=in_array(Yii::$app->controller->id, ['sdm-riwayat-cuti']) ? 'active menu-open' : 'menu-close'?>"
