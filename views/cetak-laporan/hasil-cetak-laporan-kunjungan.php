@@ -9,7 +9,7 @@ if ($jenisLayanan == 1) {
 }
 ?>
 
-<h3 align="center">LAPORAN KUNJUNGAN <?=$instalasi?> <br>
+<h3 align="center">LAPORAN KUNJUNGAN <?=$instalasi?$instalasi:''?> <br>
     Tanggal : <?= date('d-M-Y', strtotime($mulai)) ?> Sampai <?= date('d-M-Y', strtotime($selesai)) ?>
     <br>
 </h3>
