@@ -18,6 +18,8 @@ use app\models\MedisResumeMedisRj;
 use app\models\MedisRingkasanKeluar;
 use app\models\PendaftaranRegistrasi;
 use app\models\PendaftaranPasien;
+use app\models\penjualan;
+use app\models\FarmasiPenjualan;
 
 use app\widgets\AuthUser;
 use yii\filters\AccessControl;
@@ -51,6 +53,12 @@ class CetakLaporanController extends Controller
             'model'=>MedisMIcd10cm::find()->limit(2000)->all(),
         ]);
     }
+
+    public function actionLaporanFarmasi()
+    {
+        return $this->render('laporan-farmasi');
+    }
+    
     public function actionKunjunganPasien()
     {
         return $this->render('kunjungan-pasien');
@@ -151,6 +159,101 @@ class CetakLaporanController extends Controller
         exit;
         
         
+    }
+
+    //FARMASI DEPO
+    public function actionCetakLaporanFarmasiDepo()
+    {
+        $tgl_m = Yii::$app->request->post('tanggal_mulai');
+        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+
+        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+        $unit = Yii::$app->request->post('farmasi_depo');
+        $ruangan = SdmMUnit::find()->where(['unt_id' => $unit])->one();
+
+        //print_r($unit);
+        if ($unit != null) {
+            $model = FarmasiPenjualan::find()->where(['pnj_depo_id' =>$unit])->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        }else{
+            $model = FarmasiPenjualan::find()->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        }
+        // echo"<pre>";
+        // print_r($model);die();
+        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+        $pdf->showImageErrors = true;
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-depo',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan'=>$ruangan ]);
+        $pdf->AddPageByArray([
+            'orientation' => 'L',
+            'margin-bottom'=>0,
+        ]);
+        $pdf->WriteHTML($page);
+        $pdf->Output('LAPORAN_FARMASI_DEPO_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        exit;
+    }
+
+        //FARMASI DOKTER
+    public function actionCetakLaporanFarmasiDokter()
+    {
+        $tgl_m = Yii::$app->request->post('tanggal_mulai');
+        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+
+        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+        $unit = Yii::$app->request->post('farmasi_dokter');
+        $dokterf = SdmMPegawai::find()->where(['pgw_id' => $unit ])->one();
+
+        //   echo"<pre>";
+        // print_r($dokterf);die();
+        if ($unit != null) {
+            $model = FarmasiPenjualan::find()->where(['pnj_dokter_id'=>$unit])->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            
+        }else{
+            $model = FarmasiPenjualan::find()->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        
+        }
+        // echo"<pre>";
+        // print_r($model);die();
+        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+        $pdf->showImageErrors = true;
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-dokter',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'dokterf'=>$dokterf ]);
+        $pdf->AddPageByArray([
+            'orientation' => 'L',
+            'margin-bottom'=>0,
+        ]);
+        $pdf->WriteHTML($page);
+        $pdf->Output('LAPORAN_FARMASI_DOKTER_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        exit;
+    }
+
+    //FARMASI PASIEN
+    public function actionCetakLaporanFarmasiPasien()
+    {
+        $tgl_m = Yii::$app->request->post('tanggal_mulai');
+        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+
+        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+        $pasien = Yii::$app->request->post('FarmasiPasien');
+
+
+        //print_r($unit);
+            $model = FarmasiPenjualan::find()->where(['like', 'pnj_no_rm', $pasien])->orWhere(['like', 'pnj_nama_pasien', $pasien])->joinWith(['detail','poli'])->orWhere(['like', 'pnj_no_daftar', $pasien])->joinWith(['detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        // echo"<pre>";
+        // print_r($pasienf);die();
+        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+        $pdf->showImageErrors = true;
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-pasien',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'pasienf'=>$pasien ]);
+        $pdf->AddPageByArray([
+            'orientation' => 'L',
+            'margin-bottom'=>0,
+        ]);
+        $pdf->WriteHTML($page);
+        $pdf->Output('LAPORAN_FARMASI_PASIEN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        exit;
     }
     
     public function actionCetakLaporanRuangan()
