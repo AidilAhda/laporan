@@ -143,7 +143,7 @@ class CetakLaporanController extends Controller
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai ,'total'=>$total]);
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai ,'total'=>$total,'jenisLayanan'=>$jenisLayanan]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,
