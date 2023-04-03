@@ -130,6 +130,7 @@ class CetakLaporanController extends Controller
                 }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
                 
             }else{
+                //jika layanan tidak dipilih
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
                 }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
