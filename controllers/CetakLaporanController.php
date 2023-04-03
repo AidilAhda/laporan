@@ -76,55 +76,51 @@ class CetakLaporanController extends Controller
         $tgl_s = Yii::$app->request->post('tanggal_selesai');
 
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
-        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
-        $unit = Yii::$app->request->post('ruangan');
-        $isRekap = Yii::$app->request->post('rekap');
-        $ruangan = SdmMUnit::find()->where(['unt_parent_id' => $unit])->all();
-        
-        
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));        
+        $jenisLayanan = Yii::$app->request->post('layanan');
+
+       
+
         //jika rekap
         if (Yii::$app->request->post('rekap')) {
             //jika filter ruangan tidak kosong,pilih berdasarkan ruangan ruangan
-            if ($unit != null) {
-                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                    $q->joinWith(['pasien']);
-                }])->where(['pl_unit_kode'=>$ruangan['unt_id']])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                    $q->joinWith(['pasien']);
-                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+            if ($jenisLayanan != null) {
+                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                        $q->joinWith(['pasien']);
+                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
 
-                
-                echo"<pre>";
-                print_r($model);
-                die();
-        
-             
+                    $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                        $q->joinWith(['pasien']);
+                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                    // echo"<pre>";
+                    // print_r($model);
+                    // die();
             }else{
-                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                    $q->joinWith(['pasien']);
-                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                    $q->joinWith(['pasien']);
-                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
-            
-            }
+                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                        $q->joinWith(['pasien']);
+                    }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                    $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                        $q->joinWith(['pasien']);
+                    }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                
+                }
         
-        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+            $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
-        $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan' => $ruangan ,'total'=>$total]);
-        $pdf->AddPageByArray([
-            'orientation' => 'L',
-            'margin-bottom'=>0,
-        ]);
-        $pdf->WriteHTML($page);
-        $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
-        exit;
-            
+            $pdf->showImageErrors = true;
+            $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai ,'total'=>$total,'jenisLayanan'=>$jenisLayanan]);
+            $pdf->AddPageByArray([
+                'orientation' => 'L',
+                'margin-bottom'=>0,
+            ]);
+            $pdf->WriteHTML($page);
+            $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+            exit;
+                
         //jika tidak rekap
         }else{
             //jika filter ruangan kosong,pilih semua ruangan
-            if ($unit != null) {
+            if ($jenisLayanan != null) {
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
                 }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
@@ -146,7 +142,7 @@ class CetakLaporanController extends Controller
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan' => $ruangan ,'total'=>$total]);
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai ,'total'=>$total]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,

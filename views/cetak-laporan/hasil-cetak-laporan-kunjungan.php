@@ -1,4 +1,15 @@
-<h3 align="center">LAPORAN <?= $ruangan ? $ruangan['unt_nama'] : 'lAPORAN PASIEN' ?> <br>
+<?php
+$instalasi = '';
+if ($jenisLayanan == 1) {
+    $instalasi = 'INSTALASI GAWAT DARURAT';
+} elseif ($jenisLayanan == 2) {  
+    $instalasi = 'INSTALASI RAWAT JALAN';
+}else {
+    $instalasi = 'INSTALASI RAWAT INAP';
+}
+?>
+
+<h3 align="center">LAPORAN KUNJUNGAN <?=$instalasi?> <br>
     Tanggal : <?= date('d-M-Y', strtotime($mulai)) ?> Sampai <?= date('d-M-Y', strtotime($selesai)) ?>
     <br>
 </h3>
@@ -24,21 +35,24 @@
         ?>
     <tr>
         <td><?= $no++ ?></td>
-        <td><?= $val['registrasi']? $val['registrasi']['reg_no_sep'] : ''?></td>
-        <td><?= $val['registrasi']? $val['registrasi']['reg_pasien_kode'] : ''?></td>
+        <td><?= $val['registrasi']? $val['registrasi']['reg_no_sep'] : ' - '?></td>
+        <td><?= $val['registrasi']? $val['registrasi']['reg_pasien_kode'] : ' - '?></td>
 
-        <td><?= $val['registrasi']['pasien'] ? $val['registrasi']['pasien']['ps_nama'].'<BR> ('.$val['registrasi']['pasien']['ps_no_identitas'].')' : '' ?>
+
         </td>
-        <td><?= $val['pl_unit_kode'] ? $val['unit']['unt_nama'] : '' ?></td>
-        <td><?= $dpjp ? ($dpjp->pegawai ? $dpjp->pegawai->pgw_nama : ''): ''  ?></td>
-        <td><?= $val['pl_tgl_masuk'] ? date('d-M-Y H:i:s', strtotime($val['pl_tgl_masuk'])) : ''  ?></td>
-        <td><?=$val['registrasi']? ($val['registrasi']['reg_tgl_keluar'] ? date('d-M-Y H:i:s', strtotime($val['registrasi']['reg_tgl_keluar'])) : ''):''?>
+        <td> <?= ($val['registrasi']?($val['registrasi']['pasien']?$val['registrasi']['pasien']['ps_nama'].'<BR> ('.$val['registrasi']['pasien']['ps_no_identitas'].')':'' ):'')?>
+        </td>
+        <td><?= $val['pl_unit_kode'] ? $val['unit']['unt_nama'] : '-' ?></td>
+        <td><?= $dpjp ? ($dpjp->pegawai ? $dpjp->pegawai->pgw_gelar_depan.' '. $dpjp->pegawai->pgw_nama.' '.$dpjp->pegawai->pgw_gelar_belakang : '-'): ' - '  ?>
+        </td>
+        <td><?= $val['pl_tgl_masuk'] ? date('d-M-Y H:i:s', strtotime($val['pl_tgl_masuk'])) : '-'  ?></td>
+        <td><?=$val['registrasi']? ($val['registrasi']['reg_tgl_keluar'] ? date('d-M-Y H:i:s', strtotime($val['registrasi']['reg_tgl_keluar'])) : '-'):'-'?>
         </td>
     </tr>
     <?php } ?>
     <tr>
         <td></td>
-        <td> <strong>Total Kunjungan <?=$ruangan?$ruangan['unt_nama']: "Pasien"?></strong></td>
+        <td> <strong>Total Kunjungan </strong></td>
         <td> <strong><?=$total?></strong></td>
     </tr>
 </table>

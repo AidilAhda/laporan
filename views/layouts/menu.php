@@ -51,37 +51,12 @@ use app\models\SdmMPegawai;
 
                     <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti/approval" ? 'class="active"' : ""?>>
                         <a href="<?php echo Url::to(['/cetak-laporan/laporan-farmasi']) ?>" class="nav-link">
-                            <i class="fa fa-circle-o"></i>Farmasi/Depo
+                            <i class="fa fa-circle-o"></i>Farmasi
                         </a>
                     </li>
 
                 </ul>
             </li>
-            <li class="treeview <?=in_array(Yii::$app->controller->id, ['sdm-riwayat-cuti']) ? 'active menu-open' : 'menu-close'?>"
-                style="height: auto;">
-                <a href="#">
-                    <i class="fa fa-calendar-check-o"></i> <span>Analisa</span>
-                    <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                    </span>
-                </a>
-                <ul class="treeview-menu">
-                    <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti" ? 'class="active"' : ""?>>
-                        <a href="<?= Yii::$app->urlManager->createUrl('/sdm-riwayat-cuti') ?>" class="nav-link">
-                            <i class="fa fa-circle-o"></i>Data Analisa
-                        </a>
-                    </li>
-
-                    <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti/approval" ? 'class="active"' : ""?>>
-                        <a href="<?= Yii::$app->urlManager->createUrl('/sdm-riwayat-cuti/approval') ?>"
-                            class="nav-link">
-                            <i class="fa fa-circle-o"></i>Setting Analisa
-                        </a>
-                    </li>
-                </ul>
-            </li>
-
-
             <li <?=Yii::$app->controller->id=="indexing" ? 'class="active"' : ""?>><a
                     href="<?php echo Url::to(['/site']) ?>"><i class="fa fa-dashboard"></i> <span>indexing</span></a>
             </li>
