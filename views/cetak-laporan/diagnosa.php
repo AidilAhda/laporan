@@ -2,11 +2,14 @@
 
 use kartik\select2\Select2;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use kartik\date\DatePicker;
 use yii\helpers\ArrayHelper;
 use \app\models\MedisMIcd10cm;
 use \app\models\SdmMUnit;
+
+use yii\web\JsExpression;
 /* @var $this yii\web\View */
 /* @var $model app\models\SdmMAgama */
 /* @var $form yii\widgets\ActiveForm */
@@ -24,9 +27,10 @@ use \app\models\SdmMUnit;
                 ],
             ]); ?>
 
-            <div class="col-md-3">
-                <label>Tanggal Mulai</label>
-                <?= DatePicker::widget([
+            <div class="row">
+                <div class="col-md-4">
+                    <label>Tanggal Mulai</label>
+                    <?= DatePicker::widget([
                             'name' => 'tanggal_mulai',
                             'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                             'value' => date('d-M-Y'),
@@ -36,10 +40,10 @@ use \app\models\SdmMUnit;
                             ]
                         ]);
                         ?>
-            </div>
-            <div class="col-md-3">
-                <label>Tanggal Selesai</label>
-                <?= DatePicker::widget([
+                </div>
+                <div class="col-md-4">
+                    <label>Tanggal Selesai</label>
+                    <?= DatePicker::widget([
                             'name' => 'tanggal_selesai',
                             'type' => DatePicker::TYPE_COMPONENT_PREPEND,
                             'value' => date('d-M-Y'),
@@ -49,34 +53,78 @@ use \app\models\SdmMUnit;
                             ]
                         ]);
                         ?>
-            </div>
-            <div class="col-md-3">
-                <label>Ruangan</label>
-                <?=  Select2::widget([
+                </div>
+                <div class="col-md-4">
+                    <label>Ruangan</label>
+                    <?=  Select2::widget([
                             'name' => 'ruangan',
-                            'data' => ArrayHelper::map(SdmMUnit::find()->where('unt_is_rj=1 or unt_is_ri=1')->all(), 'unt_id', 'unt_nama'),
-                            'options' => ['placeholder' => 'Select a state ...'],
+                            'data' => ArrayHelper::map(SdmMUnit::find()->where('unt_is_rj=1 or unt_is_ri=1 or unt_id =104')->all(), 'unt_id', 'unt_nama'),
+                            'options' => ['placeholder' => 'Pilih Ruangan ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,
                             ],
                         ]);?>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label>Diagnosa</label>
-                <?=  Select2::widget([
-                            'name' => 'state',
-                            'data' => ArrayHelper::map(MedisMIcd10cm::find()->limit(2000)->all(), 'icd10_kode', 'icd10_deskripsi'),
-                            'options' => ['placeholder' => 'Pilih diagnosa ...','multiple'=>true],
-                            'pluginOptions' => [
-                                'allowClear' => true,
+            <div class="row">
+                <div class="col-md-4 ">
+                    <label>Diagnosa</label>
+                    <?php 
+                $url = Url::to(['referensi-medis/icd10-select2']);
+        //         echo"<pre>";
+        // print_r($url);die();?>
+
+                    <?= Select2::widget([
+                        'name' =>'diagnosa1',
+                        'id' => 'diagnosis',
+                        'options' => ['placeholder' => 'Ketik Kode / Deskripsi ICD 10...' ],
+                        'size' => Select2::SMALL,
+                        'pluginOptions' => [
+                            'allowClear' => true,
+                            'minimumInputLength' => 3,
+                            'language' => [
+                                'errorLoading' => new JsExpression('function () {return "Menunggu hasil...";}'),
+                                'inputTooShort' => new JsExpression('function () {return "Minimal 3 karakter...";}'),
+                                'searching' => new JsExpression('function() {return "Mencari...";}'),
                             ],
-                        ]);?>
-            </div>
-            <div class="box-footer" style="margin-top: 10px;">
-                <?= Html::submitButton('    Cetak ', ['class' => 'btn btn-success btn-flat']) ?>
+                            'ajax' => [
+                                'url' => $url,
+                                'dataType' => 'json',
+                                'data' => new JsExpression('function(params) {
+                                    return {
+                                        search:params.term
+                                    };
+                                }')
+                            ],
+                            'escapeMarkup' => new JsExpression('function (markup) { return markup; }'),
+                            'templateResult' => new JsExpression('function(data) {
+                                if(data.loading){
+                                    return data.text;
+                                }else{
+                                    if(data.status){
+                                        return data.text_full;
+                                    }else{
+                                        fmsg.e(data.text);
+                                    }
+                                }
+                            }'),
+                            'templateSelection' => new JsExpression('function (data) { return data.text }'),
+                        ],
+                        'pluginEvents' => [
+                            "select2:select" => new JsExpression('function(obj) {
+                                console.log(obj.params.data);
+                            }'),
+                        ]
+                    ]);?>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="box-footer" style="margin-top: 10px;">
+                        <?= Html::submitButton('Cetak ', ['class' => 'btn btn-success btn-flat']) ?>
+                    </div>
+                </div>
             </div>
         </div>
-
         <?php ActiveForm::end(); ?>
     </div>
 

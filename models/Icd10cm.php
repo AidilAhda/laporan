@@ -1,6 +1,6 @@
 <?php
 
-namespace app\models;
+namespace app\models\medis;
 
 use Yii;
 
@@ -20,7 +20,7 @@ use Yii;
  * @property string|null $icd10_deleted_at
  * @property int|null $icd10_deleted_by
  */
-class MedisMIcd10cm extends \yii\db\ActiveRecord
+class Icd10cm extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
@@ -63,15 +63,6 @@ class MedisMIcd10cm extends \yii\db\ActiveRecord
             'icd10_deleted_at' => 'Icd10 Deleted At',
             'icd10_deleted_by' => 'Icd10 Deleted By',
         ];
-    }
-
-    /**
-     * {@inheritdoc}
-     * @return MedisMQuery the active query used by this AR class.
-     */
-    public static function find()
-    {
-        return new MedisMQuery(get_called_class());
     }
     public static function getDataQuery($search=null){
         $sql="

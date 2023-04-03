@@ -13,6 +13,7 @@ use app\models\JenisLaporanSearch;
 use app\models\PelaporanForm;
 use app\models\SdmMPegawai;
 use app\models\MedisMIcd10cm;
+
 use app\models\MedisResumeMedisRj;
 use app\models\MedisRingkasanKeluar;
 use app\models\PendaftaranRegistrasi;
@@ -46,13 +47,20 @@ class CetakLaporanController extends Controller
     }
     public function actionDiagnosa()
     {
-        return $this->render('diagnosa');
+        return $this->render('diagnosa',[
+            'model'=>MedisMIcd10cm::find()->limit(2000)->all(),
+        ]);
     }
     public function actionKunjunganPasien()
     {
         return $this->render('kunjungan-pasien');
     }
 
+    public function actionDiagnosaSelect2()
+    {
+        $diagnosa = MedisMIcd10cm::find()->all();
+        return $this->render('diagnosa',['modelDetail'=>$diagnosa]);
+    }
     //JUMLAH KUNJUNGAN
     public function actionCetakLaporanKunjungan()
     {
@@ -104,24 +112,29 @@ class CetakLaporanController extends Controller
     {
         $tgl_m = Yii::$app->request->post('tanggal_mulai');
         $tgl_s = Yii::$app->request->post('tanggal_selesai');
-        $state = Yii::$app->request->post('state');
+        $diagnosa = Yii::$app->request->post('diagnosa1');
         $unit = Yii::$app->request->post('ruangan');
+       
         
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
 
-        $diagnosa=array();
-        foreach($state as $s){
-            $diagnosa[] = $s;
+        // echo"<pre>";
+        // print_r(Yii::$app->request->post());die();
+        
+        // $diagnosa=array();
+        // foreach($state as $s){
+        //     $diagnosa[] = $s;
 
-        }
+        // }
         // var_dump($state);
-        $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
-            ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
+        $model =MedisResumeMedisRj::find()->joinWith(['layanan','dokter'])->where([
+            'rmrj_diagnosis_utama_kode' =>$diagnosa]
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->asArray()->all();
-        $total =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
-            ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
+        $total =MedisResumeMedisRj::find()->joinWith(['layanan','dokter'])->where([
+            'rmrj_diagnosis_utama_kode' =>$diagnosa]
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->count();
+        
         // echo"<pre>";
         // print_r($model);die();
 
@@ -268,5 +281,5 @@ class CetakLaporanController extends Controller
         ]);
     }
 
-
+    
 }

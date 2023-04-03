@@ -3,8 +3,6 @@
 namespace app\models;
 
 use Yii;
-use app\models\PendaftaranLayanan;
-use app\models\SdmMPegawai;
 
 /**
  * This is the model class for table "medis_resume_medis_rj".

@@ -2,7 +2,7 @@
     Tanggal : <?= date('d-M-Y', strtotime($mulai)) ?> Sampai <?= date('d-M-Y', strtotime($selesai)) ?>
     <br>
 </h3>
-<table width="100%" border="1" cellspacing="0">
+<table width="100%" border="1" cellspacing="0" style="text-align: center;vertical-align: middle;">
     <tr>
         <th>No</th>
         <th>No Sep</th>
@@ -16,8 +16,7 @@
     <?php  $no = 1; foreach ($model as $val){
         $nama_dpjp = '';
             if($val['pl_jenis_layanan'] == 3){
-               $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();
-               
+             $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();              
             }else{
                 $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $val['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
             }
