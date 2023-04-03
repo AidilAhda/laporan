@@ -78,30 +78,37 @@ class CetakLaporanController extends Controller
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
         $unit = Yii::$app->request->post('ruangan');
-        $ruangan = SdmMUnit::find()->where(['unt_id' => $unit])->one();
-
+        $isRekap = Yii::$app->request->post('rekap');
+        $ruangan = SdmMUnit::find()->where(['unt_parent_id' => $unit])->all();
         
-        if ($unit != null) {
-            $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                $q->joinWith(['pasien']);
-            }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        
+        //jika rekap
+        if (Yii::$app->request->post('rekap')) {
+            //jika filter ruangan tidak kosong,pilih berdasarkan ruangan ruangan
+            if ($unit != null) {
+                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->where(['pl_unit_kode'=>$ruangan['unt_id']])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
 
-            $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                $q->joinWith(['pasien']);
-            }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                
+                echo"<pre>";
+                print_r($model);
+                die();
+        
+             
+            }else{
+                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
             
-        }else{
-            $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                $q->joinWith(['pasien']);
-            }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-            $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                $q->joinWith(['pasien']);
-            }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+            }
         
-        }
-        
-        // echo"<pre>";
-        // print_r($model);die();
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
@@ -113,6 +120,43 @@ class CetakLaporanController extends Controller
         $pdf->WriteHTML($page);
         $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
         exit;
+            
+        //jika tidak rekap
+        }else{
+            //jika filter ruangan kosong,pilih semua ruangan
+            if ($unit != null) {
+                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+    
+                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                
+            }else{
+                $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+            
+            }
+        
+        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+        $pdf->showImageErrors = true;
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan' => $ruangan ,'total'=>$total]);
+        $pdf->AddPageByArray([
+            'orientation' => 'L',
+            'margin-bottom'=>0,
+        ]);
+        $pdf->WriteHTML($page);
+        $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        exit;
+        }
+        
+        
     }
 
     //DIAGNOSA
@@ -128,7 +172,7 @@ class CetakLaporanController extends Controller
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
 
         // echo"<pre>";
-        // print_r(Yii::$app->request->post());die();
+        // print_r($diagnosa);die();
         
         // $diagnosa=array();
         // foreach($state as $s){
@@ -136,10 +180,11 @@ class CetakLaporanController extends Controller
 
         // }
         // var_dump($state);
-        $model =MedisResumeMedisRj::find()->joinWith(['layanan','dokter'])->where([
+        $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where([
             'rmrj_diagnosis_utama_kode' =>$diagnosa]
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->asArray()->all();
-        $total =MedisResumeMedisRj::find()->joinWith(['layanan','dokter'])->where([
+        
+        $total =MedisResumeMedisRj::find()->joinWith(['layanan'])->where([
             'rmrj_diagnosis_utama_kode' =>$diagnosa]
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_unit_kode'=> $unit])->count();
         

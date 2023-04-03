@@ -38,7 +38,7 @@
     <?php } ?>
     <tr>
         <td></td>
-        <td> <strong>Total Kunjungan <?=$ruangan['unt_nama']?></strong></td>
+        <td> <strong>Total Kunjungan <?=$ruangan?$ruangan['unt_nama']: "Pasien"?></strong></td>
         <td> <strong><?=$total?></strong></td>
     </tr>
 </table>

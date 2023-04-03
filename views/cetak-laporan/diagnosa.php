@@ -113,6 +113,7 @@ use yii\web\JsExpression;
                         'pluginEvents' => [
                             "select2:select" => new JsExpression('function(obj) {
                                 console.log(obj.params.data);
+                                
                             }'),
                         ]
                     ]);?>
