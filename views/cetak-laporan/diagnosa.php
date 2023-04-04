@@ -55,11 +55,11 @@ use yii\web\JsExpression;
                         ?>
                 </div>
                 <div class="col-md-4">
-                    <label>Ruangan</label>
+                    <label>Layanan</label>
                     <?=  Select2::widget([
                             'name' => 'ruangan',
-                            'data' => ArrayHelper::map(SdmMUnit::find()->where('unt_is_rj=1 or unt_is_ri=1 or unt_id =104')->all(), 'unt_id', 'unt_nama'),
-                            'options' => ['placeholder' => 'Pilih Ruangan ...'],
+                            'data' =>  ['1' => 'INSTALASI GAWAT DARURAT','2'=>'INSTALASI RAWAT JALAN','3'=>'INSTALASI RAWAT INAP'],
+                            'options' => ['placeholder' => 'Pilih Layanan ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,
                             ],

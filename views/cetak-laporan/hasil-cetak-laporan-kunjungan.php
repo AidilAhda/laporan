@@ -4,8 +4,10 @@ if ($jenisLayanan == 1) {
     $instalasi = 'INSTALASI GAWAT DARURAT';
 } elseif ($jenisLayanan == 2) {  
     $instalasi = 'INSTALASI RAWAT JALAN';
-}else {
+} elseif ($jenisLayanan == 3) {
     $instalasi = 'INSTALASI RAWAT INAP';
+}else{
+    $instalasi = '';
 }
 ?>
 
@@ -27,7 +29,7 @@ if ($jenisLayanan == 1) {
     <?php  $no = 1; foreach ($model as $val){
         $nama_dpjp = '';
             if($val['pl_jenis_layanan'] == 3){
-             $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();              
+            $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $val['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();              
             }else{
                 $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $val['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
             }

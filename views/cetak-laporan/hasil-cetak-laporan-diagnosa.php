@@ -5,8 +5,20 @@ use app\models\MedisRingkasanKeluar;
 use app\models\SdmMPegawai;
 use app\models\SdmMUnit;
 use app\models\PendaftaranPasien;
+
+$instalasi = '';
+if ($layanan == 1) {
+    $instalasi = 'INSTALASI GAWAT DARURAT';
+} elseif ($layanan == 2) {  
+    $instalasi = 'INSTALASI RAWAT JALAN';
+} elseif ($layanan == 3) {
+    $instalasi = 'INSTALASI RAWAT INAP';
+}else{
+    $instalasi = '';
+}
+
 ?>
-<h3 align="center">Laporan Diagnosa </h3>
+<h3 align="center">LAPORAN DIAGNOSA <?=$instalasi?$instalasi:''?></h3>
 <h4 align="center">Tanggal : <?= date('d-M-Y', strtotime($mulai)) ?> Sampai <?= date('d-M-Y', strtotime($selesai)) ?>
 </h4>
 <br>
@@ -49,12 +61,12 @@ use app\models\PendaftaranPasien;
     <tr>
         <td><?= $no++ ?></td>
         <td><?= $registrasi->reg_pasien_kode; ?></td>
-        <td><?= $val['rmrj_diagnosis_utama_kode']?>
+        <td><?= ($val['rmrj_diagnosis_utama_kode']?$val['rmrj_diagnosis_utama_kode']:'')?>
         </td>
         <td><?= $pasien?$pasien->ps_nama:' - '; ?></td>
         <td><?= $dpjp ? $dpjp->pgw_gelar_depan .''. $dpjp->pgw_nama .' '.$dpjp->pgw_gelar_belakang : ' - '  ?></td>
         <td><?= $unit ? $unit->unt_nama: ' - '  ?></td>
-        <td><?=($val['rmrj_diagnosis_utama_deskripsi']?$val['rmrj_diagnosis_utama_deskripsi'].'(Diagnosa Utama)': '')?>
+        <td><?=($val['rmrj_diagnosis_utama_deskripsi']?$val['rmrj_diagnosis_utama_deskripsi'].'(Diagnosa Utama)': '').'<BR>'.($val['rmrj_diagnosis_tambahan1_deskripsi']?$val['rmrj_diagnosis_tambahan1_deskripsi'].'(Diagnosa Tambahan 1)':'').'<BR>'.($val['rmrj_diagnosis_tambahan2_deskripsi']?$val['rmrj_diagnosis_tambahan2_deskripsi'].'(Diagnosa Tambahan 2)':'').'<BR>'.($val['rmrj_diagnosis_tambahan3_deskripsi']?$val['rmrj_diagnosis_tambahan3_deskripsi'].'(Diagnosa Tambahan 3)':'').'<BR>'.($val['rmrj_diagnosis_tambahan4_deskripsi']?$val['rmrj_diagnosis_tambahan4_deskripsi'].'(Diagnosa Tambahan 4)':'').'<BR>'.($val['rmrj_diagnosis_tambahan5_deskripsi']?$val['rmrj_diagnosis_tambahan5_deskripsi'].'(Diagnosa Tambahan 5)':'').'<BR>'.($val['rmrj_diagnosis_tambahan6_deskripsi']?$val['rmrj_diagnosis_tambahan6_deskripsi'].'(Diagnosa Tambahan 6)':'').'<BR>'.($val['rmrj_diagnosis_tambahan7_deskripsi']?$val['rmrj_diagnosis_tambahan7_deskripsi'].'(Diagnosa Tambahan 7)':'').'<BR>'.($val['rmrj_diagnosis_tambahan8_deskripsi']?$val['rmrj_diagnosis_tambahan8_deskripsi'].'(Diagnosa Tambahan 8)':'').'<BR>'.($val['rmrj_diagnosis_tambahan9_deskripsi']?$val['rmrj_diagnosis_tambahan9_deskripsi'].'(Diagnosa Tambahan 9)':'')?>
         </td>
         <td><?= $val['rmrj_keluhan']?></td>
         <td><?= $val['rmrj_riwayat_penyakit'] ?$val['rmrj_riwayat_penyakit']: ' - ' ?></td>
