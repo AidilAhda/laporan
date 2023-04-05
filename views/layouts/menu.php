@@ -55,6 +55,12 @@ use app\models\SdmMPegawai;
                         </a>
                     </li>
 
+                    <li>
+                        <a href="<?php echo Url::to(['/cetak-laporan/debitur']) ?>" class="nav-link">
+                            <i class="fa fa-circle-o"></i>Debitur
+                        </a>
+                    </li>
+
                 </ul>
             </li>
             <li <?=Yii::$app->controller->id=="indexing" ? 'class="active"' : ""?>><a

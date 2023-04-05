@@ -77,7 +77,7 @@ use yii\web\JsExpression;
                     <?= Select2::widget([
                         'name' =>'diagnosa1',
                         'id' => 'diagnosis',
-                        'options' => ['placeholder' => 'Ketik Kode / Deskripsi ICD 10...' ],
+                        'options' => ['placeholder' => 'Ketik Kode / Deskripsi ICD 10...','multiple'=> true],
                         'size' => Select2::SMALL,
                         'pluginOptions' => [
                             'allowClear' => true,
