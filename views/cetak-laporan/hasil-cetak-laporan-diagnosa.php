@@ -33,7 +33,7 @@ if ($layanan == 1) {
         <th>Diagnosa</th>
         <th>Keluhan</th>
         <th>Riwayat Penyakit</th>
-        <th>Pemeriksaan Fisik</th>
+        <!-- <th>Pemeriksaan Fisik</th> -->
         <th>Terapi</th>
         <th>Tgl Masuk</th>
 
@@ -51,17 +51,15 @@ if ($layanan == 1) {
         $dpjp = SdmMPegawai::find()->where(['pgw_id' => $val['rmrj_dokter_id']])->one();
         $pasien = PendaftaranPasien::find()->where(['ps_kode' =>$registrasi->reg_pasien_kode ])->one();
         $unit = SdmMUnit::find()->where(['unt_id' =>$val['layanan']['pl_unit_kode'] ])->one();
-
         
-    
-        // Tuberculous Peripheral Lymphadenopathy
+       // Tuberculous Peripheral Lymphadenopathy
         //Benign Lipomatous Neoplasm Of Skin And Subcutaneous Tissue Of Limb
         
         ?>
     <tr>
         <td><?= $no++ ?></td>
         <td><?= $registrasi->reg_pasien_kode; ?></td>
-        <td><?= ($val['rmrj_diagnosis_utama_kode']?$val['rmrj_diagnosis_utama_kode']:'')?>
+        <td><?= ($val['rmrj_diagnosis_utama_kode']?$val['rmrj_diagnosis_utama_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan1_kode']?$val['rmrj_diagnosis_tambahan1_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan2_kode']?$val['rmrj_diagnosis_tambahan2_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan3_kode']?$val['rmrj_diagnosis_tambahan3_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan4_kode']?$val['rmrj_diagnosis_tambahan4_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan5_kode']?$val['rmrj_diagnosis_tambahan5_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan6_kode']?$val['rmrj_diagnosis_tambahan6_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan7_kode']?$val['rmrj_diagnosis_tambahan7_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan8_kode']?$val['rmrj_diagnosis_tambahan8_kode']:'').'<BR>'.($val['rmrj_diagnosis_tambahan9_kode']?$val['rmrj_diagnosis_tambahan9_kode']:'')?>
         </td>
         <td><?= $pasien?$pasien->ps_nama:' - '; ?></td>
         <td><?= $dpjp ? $dpjp->pgw_gelar_depan .''. $dpjp->pgw_nama .' '.$dpjp->pgw_gelar_belakang : ' - '  ?></td>
@@ -70,7 +68,7 @@ if ($layanan == 1) {
         </td>
         <td><?= $val['rmrj_keluhan']?></td>
         <td><?= $val['rmrj_riwayat_penyakit'] ?$val['rmrj_riwayat_penyakit']: ' - ' ?></td>
-        <td><?= $val['rmrj_pemeriksaan_fisik']?$val['rmrj_pemeriksaan_fisik']:'- '?></td>
+
         <td><?= $val['rmrj_terapi']?></td>
         <td><?= $registrasi->reg_tgl_masuk ? date('d-M-Y H:i:s', strtotime($registrasi->reg_tgl_masuk)) : ' - '  ?></td>
         <td><?= $registrasi->reg_tgl_keluar ? date('d-M-Y H:i:s', strtotime($registrasi->reg_tgl_keluar)) : ' - '  ?>

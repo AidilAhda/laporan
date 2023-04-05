@@ -63,6 +63,10 @@ class CetakLaporanController extends Controller
     {
         return $this->render('kunjungan-pasien');
     }
+    public function actionDebitur()
+    {
+        return $this->render('debitur');
+    }
 
     public function actionDiagnosaSelect2()
     {
@@ -162,20 +166,22 @@ class CetakLaporanController extends Controller
     {
         $tgl_m = Yii::$app->request->post('tanggal_mulai');
         $tgl_s = Yii::$app->request->post('tanggal_selesai');
-        $diagnosa = Yii::$app->request->post('diagnosa1');
+        $state = Yii::$app->request->post('diagnosa1');
         $layanan = Yii::$app->request->post('ruangan');
        
+        
+        
         
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
 
         
         
-        // $diagnosa=array();
-        // foreach($state as $s){
-        //     $diagnosa[] = $s;
+        $diagnosa=array();
+        foreach($state as $s){
+            $diagnosa[] = $s;
 
-        // }
+        }
         // var_dump($state);
         $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
             ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
@@ -187,6 +193,9 @@ class CetakLaporanController extends Controller
             ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_jenis_layanan'=> $layanan])->count();
         
+        
+
+
         // echo"<pre>";
         // print_r($model);die();
 
@@ -241,7 +250,7 @@ class CetakLaporanController extends Controller
         exit;
     }
 
-        //FARMASI DOKTER
+    //FARMASI DOKTER
     public function actionCetakLaporanFarmasiDokter()
     {
         $tgl_m = Yii::$app->request->post('tanggal_mulai');
@@ -304,6 +313,7 @@ class CetakLaporanController extends Controller
         exit;
     }
     
+    //RUANGAN
     public function actionCetakLaporanRuangan()
     {
         $tgl_m = Yii::$app->request->post('tanggal_mulai');
@@ -324,6 +334,39 @@ class CetakLaporanController extends Controller
 
         $pdf->showImageErrors = true;
         $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-ruangan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai, 'ruangan' => $ruangan]);
+        $pdf->AddPageByArray([
+            'orientation' => 'L',
+            'margin-bottom'=>0,
+        ]);
+        $pdf->WriteHTML($page);
+        $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        exit;
+    }
+
+    //DEBITUR
+    public function actionCetakLaporanDebitur()
+    {
+        $tgl_m = Yii::$app->request->post('tanggal_mulai');
+        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+        $debitur = Yii::$app->request->post('debitur');
+        $layanan = Yii::$app->request->post('ruangan');
+        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+        
+        if($layanan){
+            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            //  echo"<pre>";
+            // print_r($model);die();
+        }else{
+            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layanan','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+
+        }
+            // echo"<pre>";
+        // print_r($model);die();
+        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+        $pdf->showImageErrors = true;
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-debitur',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'debitur'=>$debitur]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,
