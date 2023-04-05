@@ -119,7 +119,7 @@ class CetakLaporanController extends Controller
                 'margin-bottom'=>0,
             ]);
             $pdf->WriteHTML($page);
-            $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+            $pdf->Output('LAPORAN_KUNJUNGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
             exit;
                 
         //jika tidak rekap
@@ -168,15 +168,10 @@ class CetakLaporanController extends Controller
         $tgl_s = Yii::$app->request->post('tanggal_selesai');
         $state = Yii::$app->request->post('diagnosa1');
         $layanan = Yii::$app->request->post('ruangan');
-       
-        
-        
         
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
 
-        
-        
         $diagnosa=array();
         foreach($state as $s){
             $diagnosa[] = $s;
@@ -188,27 +183,17 @@ class CetakLaporanController extends Controller
         )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_jenis_layanan'=> $layanan])->asArray()->all();
         // echo"<pre>";
         // print_r($model);die();
-        
-        $total =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
-            ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
-        )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_jenis_layanan'=> $layanan])->count();
-        
-        
-
-
-        // echo"<pre>";
-        // print_r($model);die();
 
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
         $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-diagnosa',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'diagnosa'=>$diagnosa,'total'=>$total,'layanan'=>$layanan]);
+        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-diagnosa',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'diagnosa'=>$diagnosa,'layanan'=>$layanan]);
         $pdf->AddPageByArray([
             'orientation' => 'L',
             'margin-bottom'=>0,
         ]);
         $pdf->WriteHTML($page);
-        $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        $pdf->Output('LAPORAN_DIAGNOSA_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
         exit;
         
         
@@ -353,15 +338,16 @@ class CetakLaporanController extends Controller
         $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
         
+        $model = "";
         if($layanan){
             $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
             //  echo"<pre>";
             // print_r($model);die();
         }else{
-            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layanan','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
 
         }
-            // echo"<pre>";
+        //     echo"<pre>";
         // print_r($model);die();
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
@@ -372,7 +358,7 @@ class CetakLaporanController extends Controller
             'margin-bottom'=>0,
         ]);
         $pdf->WriteHTML($page);
-        $pdf->Output('LAPORAN_RUANGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+        $pdf->Output('LAPORAN_DEBITUR_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
         exit;
     }
 

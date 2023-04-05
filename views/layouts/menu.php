@@ -49,17 +49,18 @@ use app\models\SdmMPegawai;
                         </a>
                     </li>
 
+                    <li>
+                        <a href="<?php echo Url::to(['/cetak-laporan/debitur']) ?>" class="nav-link">
+                            <i class="fa fa-circle-o"></i>Debitur
+                        </a>
+                    </li>
                     <li <?=Yii::$app->controller->id=="sdm-riwayat-cuti/approval" ? 'class="active"' : ""?>>
                         <a href="<?php echo Url::to(['/cetak-laporan/laporan-farmasi']) ?>" class="nav-link">
                             <i class="fa fa-circle-o"></i>Farmasi
                         </a>
                     </li>
 
-                    <li>
-                        <a href="<?php echo Url::to(['/cetak-laporan/debitur']) ?>" class="nav-link">
-                            <i class="fa fa-circle-o"></i>Debitur
-                        </a>
-                    </li>
+
 
                 </ul>
             </li>
