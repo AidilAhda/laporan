@@ -18,8 +18,8 @@ use app\models\MedisResumeMedisRj;
     <tr>
         <th>No</th>
         <th>NO RM</th>
-        <th>Nama Debitur</th>
         <th>Nama Pasien</th>
+        <th>Nama Debitur</th>
         <th>Ruangan</th>
         <th>Nama DPJP</th>
         <th>Diagnosa</th>
@@ -43,8 +43,8 @@ use app\models\MedisResumeMedisRj;
     <tr>
         <td><?= $no++ ?></td>
         <td><?= $val['reg_pasien_kode'] ?></td>
+        <td><?= $val['pasien']?$val['pasien']['ps_nama'].'<BR> ('.$val['pasien']['ps_no_identitas'].')':'' ?></td>
         <td><?= $val['debiturdetail']['pmdd_nama'] ?></td>
-        <td><?= $val['pasien']?$val['pasien']['ps_nama']:"-" ?></td>
         <td><?= $unit ? $unit->unt_nama: ' - '  ?></td>
         <td><?= $dpjp ? ($dpjp->pegawai ? $dpjp->pegawai->pgw_gelar_depan.' '. $dpjp->pegawai->pgw_nama.' '.$dpjp->pegawai->pgw_gelar_belakang : '-'): ' - '  ?>
         </td>
