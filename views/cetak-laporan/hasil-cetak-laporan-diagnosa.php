@@ -89,9 +89,12 @@ if ($layanan == 1) {
         <th>Diagnosa</th>
         <th>Total</th>
     </tr>
+    <!-- loop diagnosa yang telah dipilih -->
     <?php  $no = 1; for ($i=0; $i < count($diagnosa); $i++) {
         $total = 0;
+        // get data dari model
         foreach ($model as $val){
+            //cek diagnosa yang dipilih,jika ada di tiap kolom maka tambah 1
             if (($diagnosa[$i] == $val['rmrj_diagnosis_utama_kode'])||($diagnosa[$i] == $val['rmrj_diagnosis_tambahan1_kode']) || ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan2_kode']) || ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan3_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan4_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan5_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan6_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan7_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan8_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan9_kode'])) {
                 $total++;
             }

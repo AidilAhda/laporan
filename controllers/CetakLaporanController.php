@@ -73,6 +73,8 @@ class CetakLaporanController extends Controller
         $diagnosa = MedisMIcd10cm::find()->all();
         return $this->render('diagnosa',['modelDetail'=>$diagnosa]);
     }
+
+    
     //JUMLAH KUNJUNGAN
     public function actionCetakLaporanKunjungan()
     {
@@ -83,65 +85,276 @@ class CetakLaporanController extends Controller
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));        
         $jenisLayanan = Yii::$app->request->post('layanan');
 
-        // var_dump(is_null($jenisLayanan));
+        // var_dump($jenisLayanan);
         // die();
 
-        //jika rekap
-        if (Yii::$app->request->post('rekap')) {
+        //jika EXCEL
+        if (Yii::$app->request->post('excel')) {
             //jika filter ruangan tidak kosong,pilih berdasarkan ruangan ruangan
             if ($jenisLayanan != null) {
-                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                        $q->joinWith(['pasien']);
-                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-
-                    $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                        $q->joinWith(['pasien']);
-                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                //jika rawat jalan
+                if ($jenisLayanan == "1" || $jenisLayanan == "2") {
+                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRj','registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
+                
                     // echo"<pre>";
                     // print_r($model);
                     // die();
+                    
+                    $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                        'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_no_sep',
+                            'header'=>'No SEP',
+                            'value'=>function($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_no_sep'] :'-';
+
+                            }
+                        ],      
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'NO RM',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_pasien_kode']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'ps_nama',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi'])?(isset($model['registrasi']['pasien'])?$model['registrasi']['pasien']['ps_nama'].'('.$model['registrasi']['pasien']['ps_no_identitas'].')':'-'):'');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                                return (isset($model['pl_unit_kode']))?$model['unit']['unt_nama']:'-';
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
+                                    
+                                    $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $model['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
+
+                                    return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '.$dpjp->pegawai->pgw_nama .' '. $dpjp->pegawai->pgw_gelar_belakang :'-'):'');
+                            }
+                        ],
+                        
+                       // 'pl_tgl_masuk',
+                        [
+                            'attribute'=>'pl_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['pl_tgl_masuk']))?date('d-M-Y H:i:s', strtotime($model['pl_tgl_masuk'])) : '-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_keluar',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?($model['registrasi']['reg_tgl_keluar'] ? date('d-M-Y H:i:s', strtotime($model['registrasi']['reg_tgl_keluar'])) : '-'):'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+                //jika rawat inap
+                }else{
+                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRi','registrasi' => function($q){
+                    $q->joinWith(['pasien']);
+                    }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
+                    
+                    
+                    // echo"<pre>";
+                    // print_r($model);
+                    // die();
+                    $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                        'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_no_sep',
+                            'header'=>'No SEP',
+                            'value'=>function($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_no_sep'] :'-';
+
+                            }
+                        ],      
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'NO RM',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_pasien_kode']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'ps_nama',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi'])?(isset($model['registrasi']['pasien'])?$model['registrasi']['pasien']['ps_nama'].'('.$model['registrasi']['pasien']['ps_no_identitas'].')':'-'):'');
+                            }
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                                return (isset($model['pl_unit_kode']))?$model['unit']['unt_nama']:'-';
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
+                                    
+                                $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $model['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();  
+
+                                    return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '.$dpjp->pegawai->pgw_nama .' '. $dpjp->pegawai->pgw_gelar_belakang :'-'):'');
+                            }
+                        ],
+                        
+                       // 'pl_tgl_masuk',
+                        [
+                            'attribute'=>'pl_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['pl_tgl_masuk']))?date('d-M-Y H:i:s', strtotime($model['pl_tgl_masuk'])) : '-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_keluar',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?($model['registrasi']['reg_tgl_keluar'] ? date('d-M-Y H:i:s', strtotime($model['registrasi']['reg_tgl_keluar'])) : '-'):'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+
+                }
+                //jika instalasi kosong saat memilih excel
             }else{
                     $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                         $q->joinWith(['pasien']);
-                    }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-                    $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
-                        $q->joinWith(['pasien']);
-                    }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
-                
+                    }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
+                    
+                // echo"<pre>";
+                //     print_r($model);
+                //     die();
+                $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                        'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_no_sep',
+                            'header'=>'No SEP',
+                            'value'=>function($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_no_sep'] :'-';
+
+                            }
+                        ],      
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'NO RM',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?$model['registrasi']['reg_pasien_kode']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'ps_nama',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi'])?(isset($model['registrasi']['pasien'])?$model['registrasi']['pasien']['ps_nama'].'('.$model['registrasi']['pasien']['ps_no_identitas'].')':'-'):'');
+                            }
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                                return (isset($model['pl_unit_kode']))?$model['unit']['unt_nama']:'-';
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
+                                
+                                if($model['pl_jenis_layanan']==3){
+                                    $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $model['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();  
+                                }else{
+                                    $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $model['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
+
+                                }
+
+                                    return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '.$dpjp->pegawai->pgw_nama .' '. $dpjp->pegawai->pgw_gelar_belakang :'-'):'');
+                            }
+                        ],
+                        
+                       // 'pl_tgl_masuk',
+                        [
+                            'attribute'=>'pl_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['pl_tgl_masuk']))?date('d-M-Y H:i:s', strtotime($model['pl_tgl_masuk'])) : '-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_keluar',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['registrasi']))?($model['registrasi']['reg_tgl_keluar'] ? date('d-M-Y H:i:s', strtotime($model['registrasi']['reg_tgl_keluar'])) : '-'):'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+
                 }
         
-            $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
-
-            $pdf->showImageErrors = true;
-            $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-kunjungan',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai ,'total'=>$total,'jenisLayanan'=>$jenisLayanan]);
-            $pdf->AddPageByArray([
-                'orientation' => 'L',
-                'margin-bottom'=>0,
-            ]);
-            $pdf->WriteHTML($page);
-            $pdf->Output('LAPORAN_KUNJUNGAN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
-            exit;
+            
                 
-        //jika tidak rekap
+        //jika tidak EXCEL
         }else{
             //jika filter ruangan kosong,pilih semua ruangan
             if ($jenisLayanan != null) {
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
     
                 $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->count();
                 
             }else{
                 //jika layanan tidak dipilih
                 $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
                 $total = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
                     $q->joinWith(['pasien']);
-                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->count();
+                }])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->count();
             
             }
         
@@ -180,7 +393,7 @@ class CetakLaporanController extends Controller
         // var_dump($state);
         $model =MedisResumeMedisRj::find()->joinWith(['layanan'])->where(['or',
             ['rmrj_diagnosis_utama_kode' =>$diagnosa],['rmrj_diagnosis_tambahan1_kode' =>$diagnosa],['rmrj_diagnosis_tambahan2_kode' =>$diagnosa],['rmrj_diagnosis_tambahan3_kode' =>$diagnosa],['rmrj_diagnosis_tambahan4_kode' =>$diagnosa],['rmrj_diagnosis_tambahan5_kode' =>$diagnosa],['rmrj_diagnosis_tambahan6_kode' =>$diagnosa],['rmrj_diagnosis_tambahan7_kode' =>$diagnosa],['rmrj_diagnosis_tambahan8_kode' =>$diagnosa],['rmrj_diagnosis_tambahan9_kode' =>$diagnosa]]
-        )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_jenis_layanan'=> $layanan])->asArray()->all();
+        )->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andFilterWhere(['pl_jenis_layanan'=> $layanan])->andWhere('rmrj_deleted_at is null')->asArray()->all();
         // echo"<pre>";
         // print_r($model);die();
 
@@ -340,11 +553,11 @@ class CetakLaporanController extends Controller
         
         $model = "";
         if($layanan){
-            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
             //  echo"<pre>";
             // print_r($model);die();
         }else{
-            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
 
         }
         //     echo"<pre>";

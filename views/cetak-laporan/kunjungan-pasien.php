@@ -16,7 +16,6 @@ use \app\models\PendaftaranLayanan;
     <div class="alert alert-default  alert-dismissible">
         <div class="jenis-laporan-form box box-success">
             <h3 class="text-center">LAPORAN KUNJUNGAN PASIEN
-
             </h3>
             <?php $form = ActiveForm::begin([
                 'action' => ['cetak-laporan/cetak-laporan-kunjungan'],
@@ -26,7 +25,6 @@ use \app\models\PendaftaranLayanan;
                     'autocomplete' => 'off'
                 ],
             ]); ?>
-
             <div class="row">
                 <div class="col-md-4">
                     <label>Tanggal Mulai</label>
@@ -69,8 +67,8 @@ use \app\models\PendaftaranLayanan;
             <div class="row">
                 <div class="col-md-4">
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="rekap">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">Rekap?</label>
+                        <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="excel">
+                        <label class="form-check-label" for="flexSwitchCheckDefault">EXPORT EXCEL?</label>
                     </div>
                 </div>
             </div>
@@ -81,10 +79,7 @@ use \app\models\PendaftaranLayanan;
                     </div>
                 </div>
             </div>
-
-
             <?php ActiveForm::end(); ?>
         </div>
-
     </div>
 </div>
