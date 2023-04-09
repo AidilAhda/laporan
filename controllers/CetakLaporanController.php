@@ -94,7 +94,10 @@ class CetakLaporanController extends Controller
             if ($jenisLayanan != null) {
                 //jika rawat jalan
                 if ($jenisLayanan == "1" || $jenisLayanan == "2") {
-                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRj','registrasi' => function($q){
+                    
+                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRj'=>function($q){
+                        $q->joinWith('pegawai');
+                    },'registrasi' => function($q){
                     $q->joinWith(['pasien']);
                     }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
                 
@@ -144,10 +147,8 @@ class CetakLaporanController extends Controller
                             'attribute'=>'pgw_nama',
                             'header'=>'NAMA DPJP',
                             'value'=>function ($model){
-                                    
-                                    $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $model['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
 
-                                    return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '.$dpjp->pegawai->pgw_nama .' '. $dpjp->pegawai->pgw_gelar_belakang :'-'):'');
+                                return (isset($model['dpjpRj'])?(isset($model['dpjpRj']['pegawai'])?$model['dpjpRj']['pegawai']['pgw_gelar_depan'].' '.$model['dpjpRj']['pegawai']['pgw_nama'] .' '. $model['dpjpRj']['pegawai']['pgw_gelar_belakang'] :'-'):'-');
                             }
                         ],
                         
@@ -172,7 +173,9 @@ class CetakLaporanController extends Controller
                         ]);
                 //jika rawat inap
                 }else{
-                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRi','registrasi' => function($q){
+                    $model = PendaftaranLayanan::find()->joinWith(['unit', 'dpjpRi'=>function($q){
+                        $q->joinWith('pegawai');
+                    },'registrasi' => function($q){
                     $q->joinWith(['pasien']);
                     }])->where(['pl_jenis_layanan'=>$jenisLayanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('pl_deleted_at is null')->asArray()->all();
                     
@@ -221,10 +224,7 @@ class CetakLaporanController extends Controller
                             'attribute'=>'pgw_nama',
                             'header'=>'NAMA DPJP',
                             'value'=>function ($model){
-                                    
-                                $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $model['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one();  
-
-                                    return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '.$dpjp->pegawai->pgw_nama .' '. $dpjp->pegawai->pgw_gelar_belakang :'-'):'');
+                                    return (isset($model['dpjpRi'])?(isset($model['dpjpRi']['pegawai'])?$model['dpjpRi']['pegawai']['pgw_gelar_depan'].' '.$model['dpjpRi']['pegawai']['pgw_nama'] .' '. $model['dpjpRi']['pegawai']['pgw_gelar_belakang'] :'-'):'-');
                             }
                         ],
                         
