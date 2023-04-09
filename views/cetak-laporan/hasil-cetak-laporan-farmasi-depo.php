@@ -24,7 +24,7 @@ use app\models\FarmasiPenjualanDetailSub;
     </tr>
     <?php $total_sub = 0;  
             $no = 1; foreach ($model as $sd){
-           
+
                 $total_sub += $sd['total'];
             
         ?>

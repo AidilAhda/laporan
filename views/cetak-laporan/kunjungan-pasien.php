@@ -68,7 +68,7 @@ use \app\models\PendaftaranLayanan;
                 <div class="col-md-4">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="excel">
-                        <label class="form-check-label" for="flexSwitchCheckDefault">EXPORT EXCEL?</label>
+                        <label class="form-check-label" for="flexSwitchCheckDefault">CETAK EXCEL?</label>
                     </div>
                 </div>
             </div>

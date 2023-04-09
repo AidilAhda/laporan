@@ -72,6 +72,10 @@ use yii\helpers\ArrayHelper;
                         ]);?>
                 </div>
             </div>
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" name="excel">
+                <label class="form-check-label" for="flexSwitchCheckDefault">CETAK EXCEL?</label>
+            </div>
             <div class="box-footer" style="margin-top: 10px;">
                 <?= Html::submitButton('Cetak', ['class' => 'btn btn-success btn-flat']) ?>
             </div>

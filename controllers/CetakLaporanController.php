@@ -102,7 +102,7 @@ class CetakLaporanController extends Controller
                     // print_r($model);
                     // die();
                     
-                    $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                    $filename='LAPORAN KUNJUNGAN PASIEN '.date('d-m-Y H:i:s').'.xlsx';
                         header("Content-Disposition: attachment; filename=\"$filename\"");
                     \moonland\phpexcel\Excel::widget([
                         'models' => $model,
@@ -180,7 +180,7 @@ class CetakLaporanController extends Controller
                     // echo"<pre>";
                     // print_r($model);
                     // die();
-                    $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                    $filename='LAPORAN KUNJUNGAN PASIEN '.date('d-m-Y H:i:s').'.xlsx';
                         header("Content-Disposition: attachment; filename=\"$filename\"");
                     \moonland\phpexcel\Excel::widget([
                         'models' => $model,
@@ -258,7 +258,7 @@ class CetakLaporanController extends Controller
                 // echo"<pre>";
                 //     print_r($model);
                 //     die();
-                $filename='LAPORAN KUNJUNGAN PASIEN.xlsx';
+                $filename='LAPORAN KUNJUNGAN PASIEN '.date('d-m-Y H:i:s').'.xlsx';
                         header("Content-Disposition: attachment; filename=\"$filename\"");
                     \moonland\phpexcel\Excel::widget([
                         'models' => $model,
@@ -526,7 +526,7 @@ class CetakLaporanController extends Controller
         $model = PendaftaranLayanan::find()->joinWith(['unit', 'registrasi' => function($q){
             $q->joinWith(['pasien']);
         }])->where(['like',  SdmMUnit::tableName().'.unt_parent_id', $unit])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-       echo"<pre>";
+        echo"<pre>";
         print_r($model);die();
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
@@ -552,27 +552,39 @@ class CetakLaporanController extends Controller
         $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
         
         $model = "";
-        if($layanan){
+        // JIKA EXCEL
+        if (Yii::$app->request->post('excel')) {
+            
+            
+
+
+        // JIKA TIDAK EXCEL
+        } else {
+            if($layanan){
             $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
-            //  echo"<pre>";
-            // print_r($model);die();
-        }else{
-            $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
+             echo"<pre>";
+            print_r($model);die();
+            }else{
+                $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
 
+            }
+                //     echo"<pre>";
+                // print_r($model);die();
+                $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+
+                $pdf->showImageErrors = true;
+                $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-debitur',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'debitur'=>$debitur]);
+                $pdf->AddPageByArray([
+                    'orientation' => 'L',
+                    'margin-bottom'=>0,
+                ]);
+                $pdf->WriteHTML($page);
+                $pdf->Output('LAPORAN_DEBITUR_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+                exit;
+            
         }
-        //     echo"<pre>";
-        // print_r($model);die();
-        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
-
-        $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-debitur',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'debitur'=>$debitur]);
-        $pdf->AddPageByArray([
-            'orientation' => 'L',
-            'margin-bottom'=>0,
-        ]);
-        $pdf->WriteHTML($page);
-        $pdf->Output('LAPORAN_DEBITUR_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
-        exit;
+        
+        
     }
 
 
@@ -582,8 +594,6 @@ class CetakLaporanController extends Controller
         $model = new PelaporanForm();
 
         if ($model->load(Yii::$app->request->post())) {
-
-
 
 
             $id_lap = Yii::$app->request->post('PelaporanForm')['jenis_laporan'];
