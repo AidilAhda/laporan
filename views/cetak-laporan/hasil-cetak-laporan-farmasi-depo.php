@@ -31,9 +31,6 @@ use app\models\FarmasiPenjualanDetailSub;
             // print_r($subDetail2);die();
                 $total_sub += $sd['pens_subtotal'];
             }
-            $no = 1; foreach ($model as $sd){
-
-                $total_sub += $sd['total'];
             
 
         ?>
