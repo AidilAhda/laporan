@@ -25,7 +25,8 @@
         "kartik-v/yii2-widget-select2": "dev-master",
         "kartik-v/yii2-widget-datepicker": "dev-master",
         "linslin/yii2-curl": "*",
-        "dmstr/yii2-adminlte-asset": "^2.1"
+        "dmstr/yii2-adminlte-asset": "^2.1",
+        "moonlandsoft/yii2-phpexcel": "*"
         
     },
     "require-dev": {

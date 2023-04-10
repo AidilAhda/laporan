@@ -213,6 +213,293 @@ class CetakLaporanController extends Controller
         
         
     }
+    
+
+    //FARMASI EXCEL
+    public function actionLaporanFarmasiExcel(){
+        $tgl_m = Yii::$app->request->post('tanggal_mulai');
+        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+
+        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+        $unit = Yii::$app->request->post('farmasi_depo');
+        
+        // $ruangan = SdmMUnit::find()->where(['unt_id' => $unit])->one();
+        // $dokterf = SdmMPegawai::find()->where(['pgw_id'=> $unit])->one();
+
+      if ($unit != null) {
+        $model = FarmasiPenjualan::find()->where(['pnj_depo_id'=>$unit])->joinWith(['depo','detail'=>function($q){
+            $q->joinWith(['subdetail'=>function($w){
+                $w->joinWith(['barang']);
+            }]);
+        },'poli','dokter'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        
+    }else{
+        $model = FarmasiPenjualan::find()->joinWith(['depo','detail'=>function($q){
+            $q->joinWith(['subdetail'=>function($w){
+                $w->joinWith(['barang']);
+            }]);
+        },'poli','dokter'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+    }
+    // echo"<pre>";
+    // print_r($model);die();
+      
+        $filename='pemakaian-obat.xlsx';
+        header("Content-Disposition: attachment; filename=\"$filename\"");
+       \moonland\phpexcel\Excel::widget([
+        'models' => $model,
+        'mode' => 'export', //default value as 'export'
+        'columns' => [
+        
+        [
+            'attribute'=>'pnj_resep_id',
+            'header'=>'ID RESEP',
+            'value'=>function($model){
+                return $model['pnj_resep_id'];
+
+            }
+        ],
+        [
+            'attribute'=>'unt_nama',
+            'header'=>'DEPO',
+            'value'=>function($model){
+                return (isset($model['depo']['unt_nama']))?$model['depo']['unt_nama']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_no_rm',
+            'header'=>'NO RM',
+            'value'=>function($model){
+                return (isset($model['pnj_no_rm']))?$model['pnj_no_rm']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_nama_pasien',
+            'header'=>'NAMA PASIEN',
+            'value'=>function($model){
+                return (isset($model['pnj_nama_pasien']))?$model['pnj_nama_pasien']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_no_daftar',
+            'header'=>'NAMA DAFTAR',
+            'value'=>function($model){
+                return (isset($model['pnj_no_daftar']))?$model['pnj_no_daftar']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_nik',
+            'header'=>'NIK',
+            'value'=>function($model){
+                return (isset($model['pnj_nik']))?$model['pnj_nik']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_tanggal_lahir',
+            'header'=>'TANGGAL LAHIR',
+            'value'=>function($model){
+                return (isset($model['pnj_tanggal_lahir']))?$model['pnj_tanggal_lahir']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_umur',
+            'header'=>'UMUR',
+            'value'=>function($model){
+                return (isset($model['pnj_umur']))?$model['pnj_umur']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_jenis kelamin',
+            'header'=>'JENIS KELAMIN',
+            'value'=>function($model){
+                return (isset($model['pnj_jenis_kelamin']))?$model['pnj_jenis_kelamin']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_riwayat_alergi',
+            'header'=>'RIWAYAT ALERGI',
+            'value'=>function($model){
+                return (isset($model['pnj_umur']))?$model['pnj_umur']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_alamat',
+            'header'=>'ALAMAT',
+            'value'=>function($model){
+                return (isset($model['pnj_alamat']))?$model['pnj_alamat']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_tanggal_resep',
+            'header'=>'TANGGAL RESEP',
+            'value'=>function($model){
+                return (isset($model['pnj_tanggal_resep']))?$model['pnj_tanggal_resep']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_nama_dokter',
+            'header'=>'NAMA DOKTER',
+            'value'=>function($model){
+                return (isset($model['dokter']['pgw_nama']))?$model['dokter']['pgw_gelar_depan'].' '.$model['dokter']['pgw_nama'].' '.$model['dokter']['pgw_gelar_belakang']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_penjamin',
+            'header'=>'PENJAMIN',
+            'value'=>function($model){
+                return (isset($model['pnj_penjamin']))?$model['pnj_penjamin']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_no_sep',
+            'header'=>'NO SEP',
+            'value'=>function($model){
+                return (isset($model['pnj_no_sep']))?$model['pnj_no_sep']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_diagnosis',
+            'header'=>'DIAGNOSA',
+            'value'=>function($model){
+                return (isset($model['pnj_diagnosis']))?$model['pnj_diagnosis']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_status',
+            'header'=>'STATUS',
+            'value'=>function($model){
+                return (isset($model['pnj_status']))?$model['pnj_status']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_created_at',
+            'header'=>'TANGGAL INPUT',
+            'value'=>function($model){
+                return (isset($model['pnj_created_at']))?$model['pnj_created_at']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_updated_at',
+            'header'=>'TANGGAL PROSES',
+            'value'=>function($model){
+                return (isset($model['pnj_updated_at']))?$model['pnj_updated_at']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_asal_rujukan',
+            'header'=>'ASAL RUJUKAN',
+            'value'=>function($model){
+                return (isset($model['pnj_asal_rujukan']))?$model['pnj_asal_rujukan']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pnj_no_hp',
+            'header'=>'NO HP',
+            'value'=>function($model){
+                return (isset($model['pnj_no_hp']))?$model['pnj_no_hp']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'bar_nama',
+            'header'=>'NAMA OBAT',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail']['barang'])?$model['detail']['subdetail']['barang']['bar_nama']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'pens_satuan',
+            'header'=>'SATUAN',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_satuan']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'pens_jumlah',
+            'header'=>'SATUAN',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_jumlah']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'pens_biaya_layanan',
+            'header'=>'BIAYA SERVICE',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_biaya_layanan']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'pens_harga_satuan',
+            'header'=>'HARGA SATUAN',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_harga_satuan']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'pens_harga_jual',
+            'header'=>'HARGA JUAL',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_harga_jual']:'-'):'-'):'-');
+            }
+        ],
+        [
+            'attribute'=>'pnj_total_retur',
+            'header'=>'TOTAL RETUR',
+            'value'=>function($model){
+                return (isset($model['pnj_total_retur']))?$model['pnj_total_retur']:'-';
+
+            }
+        ],
+        [
+            'attribute'=>'pens_subtotal',
+            'header'=>'SUBTOTAL',
+            'value'=>function($model){
+                return (isset($model['detail'])?(isset($model['detail']['subdetail'])?(isset($model['detail']['subdetail'])?$model['detail']['subdetail']['pens_subtotal']:'-'):'-'):'-');
+
+            }
+        ],
+        [
+            'attribute'=>'unt_nama',
+            'header'=>'RUANGAN',
+            'value'=>function($model){
+                return (isset($model['poli']['unt_nama']))?$model['poli']['unt_nama']:'-';
+
+            }
+        ]
+
+
+
+       
+    ], //without header working, because the header will be get label from attribute label. 
+       
+    ]);
+    
+   }
+
 
     //FARMASI DEPO
     public function actionCetakLaporanFarmasiDepo()
@@ -225,20 +512,16 @@ class CetakLaporanController extends Controller
         $unit = Yii::$app->request->post('farmasi_depo');
         $ruangan = SdmMUnit::find()->where(['unt_id' => $unit])->one();
 
-        //print_r($unit);
         if ($unit != null) {
-            $model = FarmasiPenjualan::find()->select(['unt_nama', 'bar_nama', 'pnj_tanggal_resep',  'pens_jumlah', 'pens_satuan', 'pens_harga_jual', 'pens_biaya_layanan','pens_subtotal','pnj_depo_id','pnj_id', 'pnj_unit_id', 'SUM(pens_jumlah) as jumlah', 'SUM(pens_subtotal) as total', 'SUM(pens_biaya_layanan) as biaya_layanan'])->joinWith(['poli','depo','detail' => function($q){
-                $q->joinWith(['subdetail' => function($q){
-                    $q->joinWith(['barang']);
-                }]);
-            }])->where(['pnj_depo_id' =>$unit])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->groupBy(['bar_id', 'DATE(pnj_tanggal_resep)'])->asArray()->all();
+            $model = FarmasiPenjualan::find()->where(['pnj_depo_id'=>$unit])->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();            
         }else{
             $model = FarmasiPenjualan::find()->joinWith(['depo','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+        
         }
         // echo"<pre>";
         // print_r($model);die();
         $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
-
+  
         $pdf->showImageErrors = true;
         $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-depo',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'ruangan'=>$ruangan ]);
         $pdf->AddPageByArray([
@@ -250,40 +533,40 @@ class CetakLaporanController extends Controller
         exit;
     }
 
-    //FARMASI DOKTER
-    public function actionCetakLaporanFarmasiDokter()
-    {
-        $tgl_m = Yii::$app->request->post('tanggal_mulai');
-        $tgl_s = Yii::$app->request->post('tanggal_selesai');
+  //FARMASI DOKTER
+  public function actionCetakLaporanFarmasiDokter()
+  {
+      $tgl_m = Yii::$app->request->post('tanggal_mulai');
+      $tgl_s = Yii::$app->request->post('tanggal_selesai');
 
-        $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
-        $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
-        $unit = Yii::$app->request->post('farmasi_dokter');
-        $dokterf = SdmMPegawai::find()->where(['pgw_id' => $unit ])->one();
+      $tanggal_mulai = date('Y-m-d', strtotime($tgl_m));
+      $tanggal_selesai = date('Y-m-d', strtotime($tgl_s));
+      $unit = Yii::$app->request->post('farmasi_dokter');
+      $dokterf = SdmMPegawai::find()->where(['pgw_id' => $unit ])->one();
 
-        //   echo"<pre>";
-        // print_r($dokterf);die();
-        if ($unit != null) {
-            $model = FarmasiPenjualan::find()->where(['pnj_dokter_id'=>$unit])->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-            
-        }else{
-            $model = FarmasiPenjualan::find()->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
-        
-        }
-        // echo"<pre>";
-        // print_r($model);die();
-        $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
+      //   echo"<pre>";
+      // print_r($dokterf);die();
+      if ($unit != null) {
+          $model = FarmasiPenjualan::find()->where(['pnj_dokter_id'=>$unit])->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+          
+      }else{
+          $model = FarmasiPenjualan::find()->joinWith(['dokter','detail','poli'])->andFilterWhere(['between', 'DATE(pnj_tanggal_resep)', $tanggal_mulai, $tanggal_selesai])->asArray()->all();
+      
+      }
+      // echo"<pre>";
+      // print_r($model);die();
+      $pdf = new \Mpdf\Mpdf(['tempDir' => __DIR__ . '/tmp','format'=>'Legal']);
 
-        $pdf->showImageErrors = true;
-        $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-dokter',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'dokterf'=>$dokterf ]);
-        $pdf->AddPageByArray([
-            'orientation' => 'L',
-            'margin-bottom'=>0,
-        ]);
-        $pdf->WriteHTML($page);
-        $pdf->Output('LAPORAN_FARMASI_DOKTER_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
-        exit;
-    }
+      $pdf->showImageErrors = true;
+      $page=$this->renderPartial('/cetak-laporan/hasil-cetak-laporan-farmasi-dokter',['model'=>$model, 'mulai' => $tanggal_mulai, 'selesai' => $tanggal_selesai,'dokterf'=>$dokterf ]);
+      $pdf->AddPageByArray([
+          'orientation' => 'L',
+          'margin-bottom'=>0,
+      ]);
+      $pdf->WriteHTML($page);
+      $pdf->Output('LAPORAN_FARMASI_DOKTER_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
+      exit;
+  }
 
     //FARMASI PASIEN
     public function actionCetakLaporanFarmasiPasien()
@@ -312,6 +595,9 @@ class CetakLaporanController extends Controller
         $pdf->Output('LAPORAN_FARMASI_PASIEN_'.date('d-m-Y H:i:s').'.pdf', \Mpdf\Output\Destination::INLINE);
         exit;
     }
+
+    //REKAP FARMASI EXCEL
+    
     
     //RUANGAN
     public function actionCetakLaporanRuangan()
