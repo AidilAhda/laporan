@@ -53,7 +53,7 @@ use \app\models\PendaftaranLayanan;
                         ?>
                 </div>
                 <div class="col-md-4">
-                    <label>Installasi</label>
+                    <label>Layanan</label>
                     <?=  Select2::widget([
                             'name' => 'layanan',
                             'data' => ['1' => 'INSTALASI GAWAT DARURAT','2'=>'INSTALASI RAWAT JALAN','3'=>'INSTALASI RAWAT INAP'],
