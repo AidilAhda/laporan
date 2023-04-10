@@ -22,6 +22,7 @@ use app\models\FarmasiPenjualanDetailSub;
 
     </tr>
     <?php $total_sub = 0;  
+
             $no = 1; foreach ($model as $val){
             $subDetail = FarmasiPenjualanDetailSub::find()->where(['pens_pend_id'=>$val['detail']['pjd_id']])->all();
             foreach ($subDetail as $sd){
@@ -30,6 +31,11 @@ use app\models\FarmasiPenjualanDetailSub;
             // print_r($subDetail2);die();
                 $total_sub += $sd['pens_subtotal'];
             }
+            $no = 1; foreach ($model as $sd){
+
+                $total_sub += $sd['total'];
+            
+
         ?>
     <tr>
         <td><?= $no++ ?></td>

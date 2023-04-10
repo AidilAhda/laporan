@@ -87,6 +87,20 @@ class PendaftaranLayanan extends \yii\db\ActiveRecord
         }
         return parent::beforeSave($model);
     }
+
+    public function getDpjpRi()
+    {
+        return $this->hasOne(PjpRi::className(),['pjpri_reg_kode'=>'pl_reg_kode'])->where(['pjpri_status' => 1])->andWhere('pjpri_deleted_at is null');
+    }
+    public function getDpjpRj()
+    {
+        return $this->hasOne(Pjp::className(),['pjp_pl_id'=>'pl_id'])->where(['pjp_status' => 1])->andWhere('pjp_deleted_at is null');
+    }
+    public function getDiagnosa()
+    {
+        return $this->hasOne(MedisResumeMedisRj::className(),['rmrj_pl_id'=>'pl_id']);
+    }
+
     function attr()
     {
         $data=[];

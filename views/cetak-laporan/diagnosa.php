@@ -118,7 +118,8 @@ use yii\web\JsExpression;
                         ]
                     ]);?>
                 </div>
-
+            </div>
+            <div class="row">
                 <div class="col-md-4">
                     <div class="box-footer" style="margin-top: 10px;">
                         <?= Html::submitButton('Cetak ', ['class' => 'btn btn-success btn-flat']) ?>

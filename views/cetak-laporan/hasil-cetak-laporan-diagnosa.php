@@ -78,9 +78,38 @@ if ($layanan == 1) {
         </td>
     </tr>
     <?php } ?>
+
+</table>
+<br>
+
+<!-- TOTAL DIAGNOSA -->
+<table border="1" cellspacing="0" style="text-align: center;vertical-align: middle;">
     <tr>
-        <td></td>
-        <td><strong>Total diagnosa</strong></td>
-        <td><strong><?=$total?></strong></td>
+        <th>No</th>
+        <th>Diagnosa</th>
+        <th>Total</th>
     </tr>
+    <!-- loop diagnosa yang telah dipilih -->
+    <?php  $no = 1; for ($i=0; $i < count($diagnosa); $i++) {
+        $total = 0;
+        // get data dari model
+        foreach ($model as $val){
+            //cek diagnosa yang dipilih,jika ada di tiap kolom maka tambah 1
+            if (($diagnosa[$i] == $val['rmrj_diagnosis_utama_kode'])||($diagnosa[$i] == $val['rmrj_diagnosis_tambahan1_kode']) || ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan2_kode']) || ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan3_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan4_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan5_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan6_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan7_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan8_kode'])|| ($diagnosa[$i] == $val['rmrj_diagnosis_tambahan9_kode'])) {
+                $total++;
+            }
+        }
+    ?>
+    <tr>
+        <td><?=$no++?></td>
+        <td>
+            <?=$diagnosa[$i]?>
+        </td>
+        <td>
+            <?=$total?>
+        </td>
+    </tr>
+
+
+    <?php } ?>
 </table>

@@ -39,8 +39,6 @@ if ($jenisLayanan == 1) {
         <td><?= $no++ ?></td>
         <td><?= $val['registrasi']? $val['registrasi']['reg_no_sep'] : ' - '?></td>
         <td><?= $val['registrasi']? $val['registrasi']['reg_pasien_kode'] : ' - '?></td>
-
-
         </td>
         <td> <?= ($val['registrasi']?($val['registrasi']['pasien']?$val['registrasi']['pasien']['ps_nama'].'<BR> ('.$val['registrasi']['pasien']['ps_no_identitas'].')':'' ):'')?>
         </td>
