@@ -96,6 +96,10 @@ class PendaftaranLayanan extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Pjp::className(),['pjp_pl_id'=>'pl_id'])->where(['pjp_status' => 1])->andWhere('pjp_deleted_at is null');
     }
+    public function getDiagnosa()
+    {
+        return $this->hasOne(MedisResumeMedisRj::className(),['rmrj_pl_id'=>'pl_id']);
+    }
 
     function attr()
     {

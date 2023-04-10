@@ -8,6 +8,7 @@ use Yii;
 use app\models\PendaftaranLayanan;
 use app\models\SdmMUnit;
 use app\models\PjpRi;
+use app\models\Pjp;
 use app\models\JenisLaporan;
 use app\models\JenisLaporanSearch;
 use app\models\PelaporanForm;
@@ -554,16 +555,385 @@ class CetakLaporanController extends Controller
         $model = "";
         // JIKA EXCEL
         if (Yii::$app->request->post('excel')) {
-            
-            
+            //jika filter ruangan tidak kosong,pilih berdasarkan ruangan ruangan
+            if ($layanan != null) {
+                //jika rawat jalan
+                if ($layanan == "1" || $layanan == "2") {
+                    $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone'=>function($q){
+                        $q->joinWith(['dpjpRj'=>function($w){
+                            $w->joinWith(['pegawai']);
+                        },'unit','diagnosa']);
+                        
+                    },'pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
+                    
+                
+                    // echo"<pre>";
+                    // print_r($model);
+                    // die();
+                    
+                    $filename='LAPORAN DEBITUR '.date('d-m-Y H:i:s').'.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                        'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'No RM',
+                            'value'=>function($model){
+                                return (isset($model['reg_pasien_kode']))?$model['reg_pasien_kode'] :'-';
 
+                            }
+                        ],      
+                        [
+                            'attribute'=>'pasien',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['pasien']))?$model['pasien']['ps_nama'].' ('.$model['pasien']['ps_no_identitas'].')':'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['unit'])?$model['layananhasone']['unit']['unt_nama']:'-'):'-');
+                            }
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
 
-        // JIKA TIDAK EXCEL
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['dpjpRj'])?(isset($model['layananhasone']['dpjpRj']['pegawai'])?$model['layananhasone']['dpjpRj']['pegawai']['pgw_gelar_depan'].' '.$model['layananhasone']['dpjpRj']['pegawai']['pgw_nama'].' ' . $model['layananhasone']['dpjpRj']['pegawai']['pgw_gelar_belakang']:'-'):'-'):'-');
+                            }
+                        ],     
+                        [
+                            'attribute'=>'rmrj_diagnosis_utama_deskripsi',
+                            'header'=>'DIAGNOSA',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_diagnosis_utama_deskripsi']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_keluhan',
+                            'header'=>'KELUHAN',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_keluhan']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_terapi',
+                            'header'=>'TERAPI',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_terapi']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        
+                        
+                    
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_masuk']))?$model['reg_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_masuk']))?$model['reg_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_keluar']))?$model['reg_tgl_keluar']:'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+            
+                //jika rawat inap
+                }else{
+                    $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone'=>function($q){
+                        $q->joinWith(['dpjpRi'=>function($w){
+                            $w->joinWith(['pegawai']);
+                        },'unit','diagnosa']);
+                        
+                    },'pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
+                    
+                    
+                    // echo"<pre>";
+                    // print_r($model);
+                    // die();
+                    $filename='LAPORAN DEBITUR '.date('d-m-Y H:i:s').'.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                        'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'No RM',
+                            'value'=>function($model){
+                                return (isset($model['reg_pasien_kode']))?$model['reg_pasien_kode'] :'-';
+
+                            }
+                        ],      
+                        [
+                            'attribute'=>'pasien',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['pasien']))?$model['pasien']['ps_nama'].' ('.$model['pasien']['ps_no_identitas'].')':'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['unit'])?$model['layananhasone']['unit']['unt_nama']:'-'):'-');
+                            }
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
+
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['dpjpRi'])?(isset($model['layananhasone']['dpjpRi']['pegawai'])?$model['layananhasone']['dpjpRi']['pegawai']['pgw_gelar_depan'].' '.$model['layananhasone']['dpjpRi']['pegawai']['pgw_nama'].' ' . $model['layananhasone']['dpjpRi']['pegawai']['pgw_gelar_belakang']:'-'):'-'):'-');
+                            }
+                        ],     
+                        [
+                            'attribute'=>'rmrj_diagnosis_utama_deskripsi',
+                            'header'=>'DIAGNOSA',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_diagnosis_utama_deskripsi']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_keluhan',
+                            'header'=>'KELUHAN',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_keluhan']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_terapi',
+                            'header'=>'TERAPI',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone'])?(isset($model['layananhasone']['diagnosa'])?($model['layananhasone']['diagnosa']['rmrj_terapi']):'-'):'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        
+                        
+                    
+                        [
+                            'attribute'=>'pl_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone']))?$model['layananhasone']['pl_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_masuk']))?$model['reg_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_keluar']))?$model['reg_tgl_keluar']:'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+
+                }
+                //jika instalasi kosong saat memilih excel
+            }else{
+                    $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
+                    
+                // echo"<pre>";
+                //     print_r($model);
+                //     die();
+                $filename='LAPORAN KUNJUNGAN PASIEN '.date('d-m-Y H:i:s').'.xlsx';
+                        header("Content-Disposition: attachment; filename=\"$filename\"");
+                    \moonland\phpexcel\Excel::widget([
+                        'models' => $model,
+                        'mode' => 'export', //default value as 'export'
+                         'columns' => [
+                        
+                        [
+                            'attribute'=>'reg_pasien_kode',
+                            'header'=>'No RM',
+                            'value'=>function($model){
+                                return (isset($model['reg_pasien_kode']))?$model['reg_pasien_kode'] :'-';
+
+                            }
+                        ],      
+                        [
+                            'attribute'=>'pasien',
+                            'header'=>'NAMA PASIEN',
+                            'value'=>function ($model){
+                                return (isset($model['pasien']))?$model['pasien']['ps_nama'].' ('.$model['pasien']['ps_no_identitas'].')':'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'unt_nama',
+                            'header'=>'RUANGAN',
+                            'value'=>function ($model){
+                            $unit = SdmMUnit::find()->where(['unt_id' =>$model['layananhasone']['pl_unit_kode'] ])->one();
+                                return (isset($unit)?$unit->unt_nama:'-');
+                                
+                            }
+                        ],
+                        [
+                            'attribute'=>'pgw_nama',
+                            'header'=>'NAMA DPJP',
+                            'value'=>function ($model){
+                                
+                                if ($model['layananhasone']['pl_jenis_layanan']==1||$model['layananhasone']['pl_jenis_layanan']==2) {
+                                    $dpjp = \app\models\Pjp::find()->joinWith(['pegawai'])->where(['pjp_pl_id' => $model['layananhasone']['pl_id'], 'pjp_status' => 1])->andWhere('pjp_deleted_at is null')->one();
+                                } else {
+                                    $dpjp = \app\models\PjpRi::find()->joinWith(['pegawai'])->where(['pjpri_reg_kode' => $model['layananhasone']['pl_reg_kode'], 'pjpri_status' => 1])->andWhere('pjpri_deleted_at is null')->one(); 
+                                }
+                                
+
+                                return (isset($dpjp)?(isset($dpjp->pegawai)?$dpjp->pegawai->pgw_gelar_depan.' '. $dpjp->pegawai->pgw_nama.' '.$dpjp->pegawai->pgw_gelar_belakang:'-'):'-');
+                            }
+                        ],     
+                        [
+                            'attribute'=>'rmrj_diagnosis_utama_deskripsi',
+                            'header'=>'DIAGNOSA',
+                            'value'=>function ($model){
+                                if ($model['layananhasone']['pl_jenis_layanan']==1||$model['layananhasone']['pl_jenis_layanan']==2) {
+                                $diagnosa = MedisResumeMedisRj::find()->where(['rmrj_pl_id'=>$model['layananhasone']['pl_id']])->one();
+                            }
+                             return (isset($diagnosa)?$diagnosa->rmrj_diagnosis_utama_deskripsi:'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_keluhan',
+                            'header'=>'KELUHAN',
+                            'value'=>function ($model){
+                                if ($model['layananhasone']['pl_jenis_layanan']==1||$model['layananhasone']['pl_jenis_layanan']==2) {
+                                $diagnosa = MedisResumeMedisRj::find()->where(['rmrj_pl_id'=>$model['layananhasone']['pl_id']])->one();
+                            }
+                             return (isset($diagnosa)?$diagnosa->rmrj_keluhan:'-');
+                            }
+
+                        ],
+                        [
+                            'attribute'=>'rmrj_terapi',
+                            'header'=>'TERAPI',
+                            'value'=>function ($model){
+                                if ($model['layananhasone']['pl_jenis_layanan']==1||$model['layananhasone']['pl_jenis_layanan']==2) {
+                                $diagnosa = MedisResumeMedisRj::find()->where(['rmrj_pl_id'=>$model['layananhasone']['pl_id']])->one();
+                            }
+                             return (isset($diagnosa)?$diagnosa->rmrj_terapi:'-');
+                            }
+
+                        ],
+                       
+                    
+                        [
+                            'attribute'=>'pmdd_nama',
+                            'header'=>'NAMA DEBITUR',
+                            'value'=>function ($model){
+                                return (isset($model['debiturdetail']))?$model['debiturdetail']['pmdd_nama']:'-';
+                            }
+                        ],
+                        
+                        
+                    
+                        [
+                            'attribute'=>'pl_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['layananhasone']))?$model['layananhasone']['pl_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL MASUK',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_masuk']))?$model['reg_tgl_masuk']:'-';
+                            }
+                        ],
+                        [
+                            'attribute'=>'reg_tgl_masuk',
+                            'header'=>'TANGGAL KELUAR',
+                            'value'=>function ($model){
+                                return (isset($model['reg_tgl_keluar']))?$model['reg_tgl_keluar']:'-';
+                            }
+                        ],
+    
+                        ], //without header working, because the header will be get label from attribute label. 
+                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        ]);
+
+                }
+        
+            
+                
+        //jika tidak EXCEL
         } else {
             if($layanan){
             $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur,'pl_jenis_layanan'=>$layanan])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
-             echo"<pre>";
-            print_r($model);die();
+            //  echo"<pre>";
+            // print_r($model);die();
             }else{
                 $model = PendaftaranRegistrasi::find()->joinWith(['debiturdetail','layananhasone','pasien'])->where(['reg_pmdd_kode'=>$debitur])->andFilterWhere(['between', 'DATE(pl_tgl_masuk)', $tanggal_mulai, $tanggal_selesai])->andWhere('reg_deleted_by is null')->asArray()->all();
 
