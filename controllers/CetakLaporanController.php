@@ -170,7 +170,7 @@ class CetakLaporanController extends Controller
                         ],
     
                         ], //without header working, because the header will be get label from attribute label. 
-                        'headers' => ['pl_tgl_masuk'=>'TANGGAL MASUK'], 
+                        
                         ]);
                 //jika rawat inap
                 }else{
