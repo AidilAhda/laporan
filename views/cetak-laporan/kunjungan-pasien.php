@@ -57,7 +57,7 @@ use \app\models\PendaftaranLayanan;
                     <?=  Select2::widget([
                             'name' => 'layanan',
                             'data' => ['1' => 'INSTALASI GAWAT DARURAT','2'=>'INSTALASI RAWAT JALAN','3'=>'INSTALASI RAWAT INAP'],
-                            'options' => ['placeholder' => 'Pilih Installasi ...'],
+                            'options' => ['placeholder' => 'Pilih Layanan ...'],
                             'pluginOptions' => [
                                 'allowClear' => true,
                             ],
