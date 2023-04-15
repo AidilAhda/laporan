@@ -7,7 +7,10 @@
  */
 
 use yii\helpers\Url;
+use yii\helpers\ArrayHelper;
 
+use app\models\FarmasiPenjualanDetail;
+use app\models\PenjualanSubDetail;
 use app\models\Data;
 use app\components\Helper;
 use app\models\MedisMTarifKamar;
@@ -70,10 +73,10 @@ $logo2 = Url::base()."/images/kampar.png";
         <td colspan="4"></td>
         <td>TGL. KELUAR</td>
         <td colspan="4">:
-            <?php if($layanan->pl_jenis_layanan == "3"){
-                echo $layanan->pl_tgl_keluar ? Data::date2Ind(date("Y-m-d", strtotime($layanan->pl_tgl_keluar))) : '';
+            <?php  if($layanan['pl_jenis_layanan'] == '2' OR $layanan['pl_jenis_layanan'] == '6'){
+                echo Data::date2Ind(date("Y-m-d", strtotime($registrasi['reg_tgl_masuk'])));
             }else{
-               echo  isset($registrasi['reg_tgl_masuk']) ? date("d M Y H:i:s", strtotime($registrasi['reg_tgl_masuk'])) : Null;
+                echo $registrasi['reg_tgl_keluar'] ? Data::date2Ind(date("Y-m-d", strtotime($registrasi['reg_tgl_keluar']))) : '';
             } ?>
         </td>
     </tr>
@@ -90,7 +93,7 @@ $logo2 = Url::base()."/images/kampar.png";
         <td>: <?= $dataSep['sep_hak_kelas'] ?></td>
         <td colspan="4"></td>
         <td>KELAS RAWAT</td>
-        <td>: <?= $dataSep['sep_kelas_rawat'] ?></td>
+        <td>: <?= $layanan->kelas ? $layanan->kelas->kr_nama : '' ?></td>
     </tr>
     <?php } ?>
     <tr>
@@ -323,6 +326,7 @@ $logo2 = Url::base()."/images/kampar.png";
     </tr>
 <?php
     if (count($keperawatan['data']) > 0  ) {
+        
         foreach ($keperawatan['data'] as $kp) {
 
             if($kp['layanan']['pl_jenis_layanan'] == 2) {
@@ -579,13 +583,15 @@ $logo2 = Url::base()."/images/kampar.png";
 
         $lama_akomodasi = $selish_tanggal->d;
 
-        $tarif_per_hari = $akom['kamar']['tarifkamar']['tkr_biaya'];
-
-        if ($selish_tanggal->h >= 6) {
-            $sub_biaya_akomodasi = ($lama_akomodasi + 1) * $tarif_per_hari;
-        }else{
-            $sub_biaya_akomodasi = $lama_akomodasi * $tarif_per_hari;
+        $tarif_per_hari = $akom['kamar'] ? $akom['kamar']['tarifkamar']['tkr_biaya'] : 0;
+        if($tarif_per_hari){
+            if ($selish_tanggal->h >= 6) {
+                $sub_biaya_akomodasi = ($lama_akomodasi + 1) * $tarif_per_hari;
+            }else{
+                $sub_biaya_akomodasi = $lama_akomodasi * $tarif_per_hari;
+            }
         }
+
 ?>
 	<tr>
         <td colspan="6">KAMAR <?= isset($akom['kamar']) ? $akom['kamar']['kmr_no_kamar'] : '' ?> 
@@ -730,8 +736,20 @@ $logo2 = Url::base()."/images/kampar.png";
         <td width="75%" colspan="5" align="left">
             <b><?= date('d/m/Y', strtotime($p['pnj_tanggal_resep'])).' '.$p['pnj_jam_resep'] ?></b>
         </td>
-        <td width="5%"><b>Rp.</b></td>
+
+        <?php
+   $id_obat_gratis = array('92','93','94','95','96','97','98','99','100','102','103','104','105','106','108','109','110','112','113','115','116','117','118','120','121','122','123','123','124','125','126','128','129','130','132','133','136','137','138');
+
+         $details=ArrayHelper::getColumn(FarmasiPenjualanDetail::find()->select(['pjd_id'])->where(['pjd_pnj_id'=>$p['pnj_id']])->asArray()->all(),'pjd_id');
+                    $subdetails=PenjualanSubDetail::find()->where(['IN','pens_pend_id',$details])->andWhere(['pens_bar_id'=>$id_obat_gratis])->andWhere(['>','pens_jumlah',0])->count();
+                    if($subdetails > 0){
+                    ?>
+        <td width="5%"><b></b></td>
+        <td width="15%" align="right"></td>
+        <?php }else{?>
+         <td width="5%"><b>Rp.</b></td>
         <td width="15%" align="right"><?= number_format($p['pnj_total_penjualan'], 0, ",", ".") ?></td>
+        <?php }?>
     </tr>
 	<?php
 					if(isset($p['detail'])) {
@@ -745,10 +763,26 @@ $logo2 = Url::base()."/images/kampar.png";
 		<td><?= ' 1 x '.number_format($d['biaya_layanan'], 0, ",", ".") ?></td>
 		<td colspan="2"><?= $d['jumlah'].' '.$d['satuan']. ' x '.number_format($d['harga'], 0, ",", ".") ?></td>
         <td width="5%" >: Rp.</td>
-        <td width="10%" align="right"><?= number_format(($d['jumlah']*$d['harga']+$d['biaya_layanan']), 0, ",", ".") ?></td>
+        <td width="10%" align="right">
+        <?php
+	if(in_array($d['id_barang'], $id_obat_gratis))
+    { ?>
+        <?= number_format(0, 0, ",", ".") ?>
+</td>
+        <?php }else{ ?>
+        <?= number_format(($d['jumlah']*$d['harga']+$d['biaya_layanan']), 0, ",", ".") ?></td>
+        <?php } ?>
     </tr>
 	<?php
-						$Subtotal +=  $d['subtotal'];
+	$inisbtotal=0;
+	if(in_array($d['id_barang'], $id_obat_gratis))
+    {
+    	$inisbtotal=0;
+    }else{
+	$inisbtotal=$d['subtotal'];
+	}
+
+						$Subtotal +=  $inisbtotal;
 						}
 						?>
 	<tr>
@@ -876,13 +910,36 @@ $logo2 = Url::base()."/images/kampar.png";
 </table><br/>
 
 <table width="100%" style="border-top: 1px solid black;">
+<!--    <tr>-->
+<!--        <td width="80%" colspan="6" align="left">Rekapitulasi</td>-->
+<!--        <td width="5%"></td>-->
+<!--        <td width="35%" align="right">prosedurNonBedah: --><?//= $prosedurNonBedah['total'] ?><!--<br>-->
+<!--            prosedurBedah: --><?//= $prosedurBedah['total'] ?><!--<br>-->
+<!--            konsultasi: --><?//= $konsultasi['total'] ?><!--<br>-->
+<!--            tenagaAhli: --><?//= $tenagaAhli['total'] ?><!--<br>-->
+<!--            keperawatan: --><?//= $keperawatan['total'] ?><!--<br>-->
+<!--            penunjang: --><?//= $penunjang['total'] ?><!--<br>-->
+<!--            radiologi: --><?//= $radiologi['total'] ?><!--<br>-->
+<!--            laboratorium: --><?//= $laboratorium['total'] ?><!--<br>-->
+<!--            rehabilitasi: --><?//= $rehabilitasi['total'] ?><!--<br>-->
+<!--            sub_biaya_akomodasi: --><?//= $sub_biaya_akomodasi ?><!-- <br>-->
+<!--            TotalBiayaObat: --><?//= $TotalBiayaObat ?><!-- <br>-->
+<!--            alatMedis: --><?//= $alatMedis['total'] ?><!--<br>-->
+<!--            tindakanLain: --><?//= $tindakanLain['total'] ?><!--<br></td>-->
+<!--    </tr>-->
     <tr>
+
         <td width="80%" colspan="6" align="left">
             <b>Total Keseluruhan</b>
         </td>
         <td width="5%"><b>Rp.</b></td>
-        <td width="15%" align="right"><b>
-                <?php $total = (isset($prosedurNonBedah['total']) ? $prosedurNonBedah['total'] : 0) + (isset($prosedurBedah['total']) ? $prosedurBedah['total'] : 0) + (isset($konsultasi['total']) ? $konsultasi['total'] : 0) + (isset($tenagaAhli['total']) ? $tenagaAhli['total'] : 0) + (isset($keperawatan['total']) ? $keperawatan['total'] : 0) + (isset($penunjang['total']) ? $penunjang['total'] : 0) + (isset($radiologi['total']) ? $radiologi['total'] : 0) + (isset($laboratorium['total']) ? $laboratorium['total'] : 0) + (isset($rehabilitasi['total']) ? $rehabilitasi['total'] : 0) + (isset($sub_biaya_akomodasi) ? $sub_biaya_akomodasi : 0)  + (isset($TotalBiayaObat) ? $TotalBiayaObat : 0) + (isset($alatMedis['total']) ? $alatMedis['total'] : 0) + (isset($tindakanLain['total']) ? $tindakanLain['total'] : 0); ?>
+        <td width="35%" align="right"><b>
+
+
+
+
+                <?php
+                $total = (isset($prosedurNonBedah['total']) ? $prosedurNonBedah['total'] : 0) + (isset($prosedurBedah['total']) ? $prosedurBedah['total'] : 0) + (isset($konsultasi['total']) ? $konsultasi['total'] : 0) + (isset($tenagaAhli['total']) ? $tenagaAhli['total'] : 0) + (isset($keperawatan['total']) ? $keperawatan['total'] : 0) + (isset($penunjang['total']) ? $penunjang['total'] : 0) + (isset($radiologi['total']) ? $radiologi['total'] : 0) + (isset($laboratorium['total']) ? $laboratorium['total'] : 0) + (isset($rehabilitasi['total']) ? $rehabilitasi['total'] : 0) + (isset($sub_biaya_akomodasi) ? $sub_biaya_akomodasi : 0)  +(isset($sub_biaya_inten) ? $sub_biaya_inten : 0)+ (isset($TotalBiayaObat) ? $TotalBiayaObat : 0) + (isset($alatMedis['total']) ? $alatMedis['total'] : 0) + (isset($tindakanLain['total']) ? $tindakanLain['total'] : 0); ?>
                 <?= number_format($total, 0, ",",".") ?></b></td>
     </tr>
 </table><br/>

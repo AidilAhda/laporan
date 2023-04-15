@@ -27,50 +27,7 @@ use Mpdf\Mpdf;
 
 class MonitoringController extends Controller
 {
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::className(),
-                'rules' => [
-                    [
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ]
-                ],
-                'denyCallback' => function ($rule, $action)
-                {
-                    $url=Yii::$app->urlManager->createUrl('auth/login');
-                    return $this->redirect($url);
-                }
-            ],
-            'verbs' => [
-                'class' => VerbFilter::className(),
-                'actions' => [
-                    'index'=>['get'],
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
-    public function actions()
-    {
-        return [
-            'error' => [
-                'class' => 'yii\web\ErrorAction',
-            ],
-            'captcha' => [
-                'class' => 'yii\captcha\CaptchaAction',
-                'fixedVerifyCode' => YII_ENV_TEST ? 'testme' : null,
-            ],
-        ];
-    }
-
-
-    public function actionError()
-    {
-        return $this->render('error');
-    }
+   
 
     public function actionIndex($tgl_mulai=Null, $tgl_selesai=Null, $Debitur=Null, $Layanan=Null, $unit=Null)
     {
@@ -152,8 +109,10 @@ class MonitoringController extends Controller
     }
 
     // cetak-rincian-klaim
-    function actionCetakRincianKlaim($NoPasien, $NoDaftar, $p=null, $l=null)
+    function actionCetakRincianKlaim($NoPasien, $NoDaftar, $pl_id, $p=null, $l=null)
     {
+        //echo 'Mohon maaf, untuk sementara pagi ini fitur cetak rincian belum bisa digunakan, agar tidak terganggu pelayanan di Aplikasi Depo RJ Farmasi';
+        //exit(); 
 
          if(!isset($NoPasien) || !isset($NoDaftar) ){
             throw new NotFoundHttpException();
@@ -165,11 +124,11 @@ class MonitoringController extends Controller
             $l = 279.4;
         }
         $data = new Data();
-        $cekjenisLayanan = PendaftaranLayanan::find()->where(['pl_reg_kode' => $NoDaftar])->andWhere('pl_jenis_layanan <= 4 and pl_deleted_at is null')->andWhere('pl_unit_kode != 59 and pl_unit_kode != 61 and pl_unit_kode != 62 and pl_unit_kode != 63')->orderBy(['pl_id' => SORT_DESC])->one();
+        $cekjenisLayanan = PendaftaranLayanan::find()->where(['pl_id' => $pl_id])->andWhere(' pl_deleted_at is null')->orderBy(['pl_id' => SORT_DESC])->one();
         if($cekjenisLayanan->pl_jenis_layanan == 3){
-            $layanan = PendaftaranLayanan::find()->where(['pl_reg_kode' => $NoDaftar])->andWhere('pl_jenis_layanan = 3 and pl_deleted_at is null')->orderBy(['pl_id' => SORT_DESC])->one();
+            $layanan = PendaftaranLayanan::find()->where(['pl_id' => $pl_id])->andWhere('pl_jenis_layanan = 3 and pl_deleted_at is null')->orderBy(['pl_tgl_masuk' => SORT_DESC])->one();
         }else{
-            $layanan = PendaftaranLayanan::find()->where(['pl_reg_kode' => $NoDaftar])->andWhere('pl_jenis_layanan <= 4 and pl_deleted_at is null')->andWhere('pl_unit_kode != 59 and pl_unit_kode != 61 and pl_unit_kode != 62 and pl_unit_kode != 63')->orderBy(['pl_id' => SORT_DESC])->one();
+            $layanan = PendaftaranLayanan::find()->where(['pl_id' => $pl_id])->andWhere('pl_jenis_layanan != 4 and pl_deleted_at is null')->orderBy(['pl_tgl_masuk' => SORT_DESC])->one();
         }
 
         $nama_dpjp = "";
@@ -190,7 +149,7 @@ class MonitoringController extends Controller
 
         }
 
-        $ruangan_terakhir = PendaftaranLayanan::find()->joinWith(['registrasi'])->where(['pl_reg_kode' => $NoDaftar])->andWhere('pl_jenis_layanan <= 4 and pl_deleted_at is null')->andWhere('pl_unit_kode != 61 and pl_unit_kode != 62 and pl_unit_kode != 63 and pl_unit_kode != 59 and pl_unit_kode != 84')->orderBy(['reg_tgl_keluar' => SORT_DESC, 'pl_tgl_keluar' => SORT_DESC])->one();
+        $ruangan_terakhir = PendaftaranLayanan::find()->joinWith(['registrasi'])->where(['pl_reg_kode' => $NoDaftar])->andWhere('pl_jenis_layanan != 4 and pl_jenis_layanan != 5 and pl_deleted_at is null')->andWhere('pl_unit_kode != 84')->orderBy(['pl_tgl_keluar' => SORT_DESC])->one();
 
 
         $registrasi = $data->dataRegistrasi($NoPasien, $NoDaftar);         
