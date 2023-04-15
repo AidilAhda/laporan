@@ -92,25 +92,19 @@ use yii\helpers\Html;
                                     <td align="center"><?= date("d-m-Y H:i:s", strtotime($d['pl_tgl_masuk'])); ?></td>
                                     <td align="center"><?= $d['registrasi']  ? $d['registrasi']['reg_kode'] : '' ?></td>
                                      <td align="center"><?= $d['registrasi'] ? $d['registrasi']['reg_pasien_kode'] : '' ?></td>
-                                     <td align="center"><?= $d['registrasi'] ?  ($d['registrasi']['pasien']['ps_no_identitas'] ? $d['registrasi']['pasien']['ps_no_identitas'] : '') : '' ?></td>
+                                     
+                                     <td><?=($d['registrasi']?($d['registrasi']['pasien']?$d['registrasi']['pasien']['ps_no_identitas']:'-'):'-')?></td>
+                                     <td><?=($d['registrasi']?($d['registrasi']['pasien']?$d['registrasi']['pasien']['ps_nama']:'-'):'-')?></td>
 
-                                    <td align="center"><?= $d['registrasi'] ? $d['registrasi']['pasien']['ps_nama'] : '' ?> </td>
-                                    <td align="center" style="display: none"><?= $d['unit']['unt_id'] ?></td>
-                                    <td align="center"><?= $d['unit']['unt_nama'] ?></td>
-                                    <td align="center"><?php
-                                    if($d['registrasi']) {
-                                        if ($d['registrasi']['reg_status_bayar'] == 0) {
-                                            echo "<span class='label label-info'> BELUM LUNAS</span>";
-                                        } elseif ($d['registrasi']['reg_status_bayar'] == 1) {
-                                            echo "<span class='label label-success'> LUNAS</span>";
-                                        } else {
-                                            echo "<span class='label label-warning'> KOREKSI</span>";
-                                        }
-                                    }
-                                    ?>
-                                    </td>
-                                    <td align="center" style="display: none"><?= $d['registrasi'] ? $d['registrasi']['reg_pmdd_kode'] : '' ?></td>
-                                    <td align="center"><?= $d['registrasi'] ? $d['registrasi']['debiturdetail']['pmdd_nama'] : ''?></td>
+                                    
+                                    <td align="center" style="display: none"><?= $d['unit']['unt_id'] ?></td><td align="center"><?= isset($d['unit']['unt_nama'])?$d['unit']['unt_nama']:'' ?></td>
+                                    <?php if(isset($d['registrasi']['reg_status_bayar'])) {?><td align="center"><?= ($d['registrasi']['reg_status_bayar'] == 0 ? "<span class='label label-info'> BELUM LUNAS</span>" : ($d['registrasi']['reg_status_bayar'] == 1 ?"<span class='label label-success'> LUNAS</span>" : "<span class='label label-warning'> KOREKSI</span>")) ?></td>
+                                    <?php }else{?><td>
+                                        <span class='label label-success'></span>
+                                        </td>
+                                    <?php }?>
+                                    <td align="center" style="display: none"><?= isset($d['registrasi']['reg_pmdd_kode'])?$d['registrasi']['reg_pmdd_kode'] : '' ?></td>
+                                    <td align="center"><?= isset($d['registrasi']['debiturdetail']['pmdd_nama']) ? $d['registrasi']['debiturdetail']['pmdd_nama'] : '' ?></td>
                                     <td>
 
 									<!-- <button 
@@ -118,33 +112,35 @@ use yii\helpers\Html;
                                             id="<?php// $d['registrasi']['reg_pasien_kode'].'_'.$d['registrasi']['reg_kode'].'_'.$d['registrasi']['pasien']['ps_nama'].'_'.$d['registrasi']['reg_tgl_masuk'] ?>" 
                                             style="cursor: pointer">
                                             <i class="fa fa-book"></i> Klaim Data</button> -->
-<?php if($d['registrasi']){ ?>
-                                    <?= Html::a('<i class="fa fa-search"></i> Detail Transaksi', ['monitoring/cetak-rincian-klaim', 'NoPasien' => $d['registrasi']['reg_pasien_kode'], 'NoDaftar' => $d['registrasi']['reg_kode']], ['class' => 'btn btn-success', 'target'=>'_blank']) ?>
+                                       <?= Html::a('<i class="fa fa-search"></i> Detail Transaksi', ['monitoring/cetak-rincian-klaim', 'NoPasien' => isset($d['registrasi']['reg_pasien_kode'])?$d['registrasi']['reg_pasien_kode']:'', 'NoDaftar' => isset($d['registrasi']['reg_kode'])?$d['registrasi']['reg_kode']:'', 'pl_id' => isset($d) ? $d['pl_id'] : ''], ['class' => 'btn btn-success', 'target'=>'_blank']) ?>
 
-<?php }?>
-<?php
-                                    if (isset($id_pemeriksaan_labor)) {
+                                    <?php
+                                    if ($id_pemeriksaan_labor) {?>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown">Labor
+                                                <span class="caret"></span>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <?php $no = 1; foreach ($id_pemeriksaan_labor as $itemlab) { ?>
+                                                    <li><a href="http://penunjang.rsudbangkinang.kamparkab.go.id/web/cetak/cetak-labor?id=<?= $itemlab['lab_kode'] ?>" target="_blank">Hasil <?= $no++ ?></a></li>
+                                                <?php } ?>
+                                            </ul>
+                                        </div>
+                                    <?php } ?>
 
-                                        foreach ($id_pemeriksaan_labor as $itemlab) {
-
-
-?>
-                                    <a class="btn btn-info btn-sm" href="http://penunjang.rsudbangkinang.kamparkab.go.id/web/cetak/cetak-labor?id=<?= $itemlab['lab_kode'] ?>" target="_blank">Hasil Labor</a>
-<?php
-                                                                            }
-                                    }
-?>
-
-<?php
-                                    if (isset($id_pemeriksaan_rad)) {
-                foreach ($id_pemeriksaan_rad as $itemrad) {
-
-
-?>
-                                    <a class="btn btn-warning btn-sm" href="http://penunjang.rsudbangkinang.kamparkab.go.id/web/cetak/cetak-radiologi?id=<?= $itemrad['rsr_kode'] ?>" target="_blank">Hasil Radiologi
-<?php
-                                    }}
-?>
+                                <?php
+                                if ($id_pemeriksaan_rad) {?>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-warning dropdown-toggle" data-toggle="dropdown">Radiologi
+                                            <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <?php $no = 1; foreach ($id_pemeriksaan_rad as $itemrad) { ?>
+                                                <li><a href="http://penunjang.rsudbangkinang.kamparkab.go.id/web/cetak/cetak-radiologi?id=<?= $itemrad['rsr_kode'] ?>" target="_blank">Hasil <?= $no++ ?></a></li>
+                                            <?php } ?>
+                                        </ul>
+                                    </div>
+                                <?php } ?>
 
 									</td>
                                 </tr>

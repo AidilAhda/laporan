@@ -263,7 +263,7 @@ class Data extends Model
 		
 		$Data = PendaftaranRegistrasi::find()
         ->joinWith(['debiturdetail','kirimandetail'])
-		->andWhere(['reg_pasien_kode'=> $NoPasien, 'reg_kode'=>$NoDaftar])
+		->andWhere(['reg_pasien_kode'=> $NoPasien, 'reg_kode'=>$NoDaftar])->orderBy(['reg_tgl_keluar' => SORT_DESC])->andWhere('reg_deleted_at is null')
 		->asArray()
 		->one();
 
@@ -760,7 +760,7 @@ class Data extends Model
 				foreach($dataObatPasien['result']['0'] as $r) {
 					if($r['penjualan'] != null) {
 						foreach($r['penjualan'] as $p) {
-							if($p['detail'] != null) {
+							if(isset($p['detail'])) {
 								$total = 0;
 								foreach($p['detail'] as $d) {
 									$total += $d['jumlah']*$d['harga'];
